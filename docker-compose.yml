@@ -1,0 +1,98 @@
+# docker-compose.yml — Her Platform (entorno de desarrollo local)
+#
+# Servicios:
+#   db        — PostgreSQL 16 (base de datos principal)
+#   adminer   — inspector web de la DB  →  http://localhost:8080
+#   backend   — FastAPI con hot-reload  →  http://localhost:8000  (Swagger: /docs)
+#   frontend  — React + Vite con HMR   →  http://localhost:5173
+#
+# Uso básico:
+#   docker compose up            # inicia todos los servicios
+#   docker compose up --build    # fuerza rebuild de imágenes
+#   docker compose down          # detiene y elimina contenedores (datos persisten en volumen)
+#   docker compose down -v       # también elimina el volumen de datos
+
+services:
+
+  # ── Base de datos ────────────────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      # Volumen nombrado para persistir datos entre reinicios
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      # Expuesto para conectar desde clientes externos (DBeaver, TablePlus, etc.)
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ── Adminer (inspector web de la base de datos) ──────────────────────────
+  adminer:
+    image: adminer:4
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # Pre-selecciona el servidor db al abrir Adminer
+      ADMINER_DEFAULT_SERVER: db
+
+  # ── Backend (FastAPI + uvicorn) ──────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      SECRET_KEY: ${SECRET_KEY}
+      ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: "60"
+      CORS_ORIGINS: "http://localhost:5173"
+    volumes:
+      # Bind-mount: cambios en ./backend se reflejan en el contenedor sin rebuild
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    # --reload activa hot-reload de uvicorn al detectar cambios en archivos
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # ── Frontend (React + Vite) ──────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      # URL del backend tal como la ve el BROWSER (no el contenedor)
+      VITE_API_URL: http://localhost:8000
+    volumes:
+      # Bind-mount: cambios en ./frontend se reflejan con HMR sin rebuild
+      - ./frontend:/app
+      # Volumen anónimo para preservar node_modules del contenedor
+      # (evita que el bind-mount los sobreescriba con los del host)
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+volumes:
+  # Volumen nombrado — los datos de PostgreSQL persisten aunque el contenedor se elimine
+  postgres_data:
+    driver: local
