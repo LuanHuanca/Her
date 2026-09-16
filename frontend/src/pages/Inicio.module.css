@@ -1,0 +1,190 @@
+.avatarEnlace {
+  display: inline-flex;
+  border-radius: 50%;
+  text-decoration: none;
+}
+
+.fecha {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+/* ── Tarjeta principal del reto ─────────────────────────────────────── */
+.hero {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+  border-radius: var(--radio-lg);
+  background: var(--her-rosa);
+  color: #fff;
+}
+
+.hero > *:not(.heroDeco) {
+  position: relative;
+}
+
+.heroDeco {
+  position: absolute;
+  top: -70px;
+  right: -70px;
+}
+
+.heroFila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.heroEyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.racha {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #a82b48;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.heroDia {
+  font-family: var(--font-display);
+  font-size: 44px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.heroDia span {
+  font-size: 24px;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.heroBoton {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 0 20px;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--her-rosa-oscuro);
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.heroBoton:hover {
+  background: var(--her-blush-suave);
+  color: var(--her-rosa-oscuro);
+}
+
+/* ── Semana ─────────────────────────────────────────────────────────── */
+.semana {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.dia {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 0;
+  border-radius: var(--radio-sm);
+  background: #fff;
+  border: 1px solid var(--her-linea);
+}
+
+.diaHoy {
+  background: var(--her-blush);
+  border: 1.5px solid var(--her-rosa);
+}
+
+.diaInicial {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--her-gris);
+}
+
+.diaHoy .diaInicial {
+  color: var(--her-rosa-oscuro);
+}
+
+.diaHecho,
+.diaNumero {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-size: 13px;
+}
+
+.diaHecho {
+  background: var(--her-rosa);
+  color: #fff;
+}
+
+.diaNumero {
+  color: var(--her-gris);
+}
+
+.diaPendiente {
+  border: 2px dashed var(--her-rosa);
+  color: var(--her-rosa-oscuro);
+  font-weight: 700;
+}
+
+/* ── Tarjetas ───────────────────────────────────────────────────────── */
+.iconoTarea {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--her-rosa-claro);
+  color: var(--her-rosa-oscuro);
+}
+
+.accesos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.accesoIcono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--her-blush);
+  color: var(--her-rosa);
+}
+
+.accesoValor {
+  margin-top: -8px;
+  font-size: 17px;
+  font-weight: 700;
+}

@@ -1,0 +1,79 @@
+.publica {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.datos {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  font-size: 15px;
+}
+
+.datos div {
+  display: flex;
+  gap: 6px;
+}
+
+.datos dt {
+  font-weight: 700;
+}
+
+.datos dd {
+  margin: 0;
+}
+
+.acciones {
+  display: flex;
+  justify-content: space-between;
+}
+
+.accion {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--her-tinta-2);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.accion:hover {
+  color: var(--her-tinta);
+}
+
+.activa,
+.activa:hover {
+  color: var(--her-rosa);
+}
+
+.requisitos {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.requisitos li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+}
+
+.requisitos svg {
+  flex-shrink: 0;
+  color: var(--her-rosa);
+}
+
+.postulada {
+  justify-content: center;
+  font-weight: 700;
+}

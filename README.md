@@ -79,11 +79,43 @@ her/
 │   ├── package.json      # dependencias gestionadas con pnpm
 │   └── src/
 │       ├── main.tsx
-│       └── App.tsx
+│       ├── App.tsx       # rutas de todas las pantallas
+│       ├── pages/        # una pantalla por archivo (+ su .module.css)
+│       ├── components/   # botones, tarjetas, navegación, iconos, ilustraciones
+│       ├── store/        # estado global con zustand (persistido en localStorage)
+│       ├── data/mock.ts  # datos de ejemplo hasta que existan los endpoints
+│       ├── lib/          # utilidades de fechas y texto
+│       └── styles/       # tokens de marca y estilos compartidos
 ├── docker-compose.yml
 ├── .env.example          # Variables de entorno (copiar a .env)
 └── README.md
 ```
+
+---
+
+## Pantallas del frontend
+
+La app es mobile-first (en escritorio se muestra centrada como un teléfono). Por ahora todas las pantallas usan
+datos de ejemplo de `src/data/mock.ts` y guardan lo que hace la usuaria en `localStorage`; los puntos a conectar
+con la API están marcados con `TODO`.
+
+| Ruta | Pantalla |
+|------|----------|
+| `/` | Bienvenida |
+| `/registro` | Registro (paso 1 de 2) |
+| `/metas` | Personalización de metas (paso 2 de 2) |
+| `/inicio` | Inicio: reto actual, semana, tarea y próximo evento |
+| `/retos` | Ruta de módulos de 21 días |
+| `/retos/hoy` | Tarea del día (audio + reflexión) |
+| `/recompensas` | Puntos, nivel e insignias |
+| `/comunidad` | Feed de la comunidad |
+| `/comunidad/:id` | Publicación y comentarios |
+| `/mensajes` | Mensajes |
+| `/eventos` | Calendario de eventos e inscripción |
+| `/empleos` | Bolsa de empleos |
+| `/empleos/:id` | Detalle de la oferta |
+| `/empleos/:id/postular` | Enviar CV |
+| `/perfil` | Mi perfil y configuración |
 
 ---
 

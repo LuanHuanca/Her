@@ -1,0 +1,24 @@
+/* Columna tipo móvil: ocupa toda la pantalla en celulares y se centra en escritorio. */
+.marco {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 440px;
+  min-height: 100dvh;
+  margin: 0 auto;
+  background: var(--her-fondo);
+  overflow-x: clip;
+}
+
+.contenido {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 520px) {
+  .marco {
+    box-shadow: 0 0 0 1px var(--her-linea), 0 24px 60px rgba(120, 40, 60, 0.12);
+  }
+}

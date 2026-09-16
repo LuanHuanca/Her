@@ -1,0 +1,24 @@
+.cabecera {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.logo {
+  border-radius: var(--radio-sm);
+}
+
+.guardado,
+.guardado:hover {
+  border-color: var(--her-rosa);
+  color: var(--her-rosa);
+}
+
+.coincide {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--her-rosa-oscuro);
+}

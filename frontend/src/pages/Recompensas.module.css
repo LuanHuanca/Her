@@ -1,0 +1,144 @@
+.puntos {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  border-radius: var(--radio-lg);
+  background: var(--her-blush);
+}
+
+.puntos > *:not(.deco) {
+  position: relative;
+}
+
+.deco {
+  position: absolute;
+  top: -60px;
+  right: -50px;
+}
+
+.puntosFila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cifra {
+  font-family: var(--font-display);
+  font-size: 44px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.cifra span {
+  font-size: 18px;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.trofeo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--her-rosa);
+  color: #fff;
+}
+
+.nivel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nivelFila {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--her-tinta-2);
+}
+
+.nivelFila strong {
+  color: var(--her-tinta);
+}
+
+.iconoCuadrado {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radio-sm);
+  background: var(--her-blush);
+  color: var(--her-rosa);
+}
+
+.insignias {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.insignia {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 6px;
+  border-radius: 18px;
+  background: #fff;
+  border: 1px solid var(--her-linea);
+  text-align: center;
+}
+
+.insigniaIcono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--her-blush);
+  color: var(--her-rosa);
+}
+
+.insigniaNombre {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.bloqueada {
+  background: #faf5f6;
+  border-style: dashed;
+  border-color: #e3cbd2;
+}
+
+.bloqueada .insigniaIcono {
+  background: var(--her-apagado);
+  color: #8f7d85;
+}
+
+.bloqueada .insigniaNombre {
+  font-weight: 500;
+  color: var(--her-gris);
+}
+
+.ganadora {
+  box-shadow: 0 0 0 3px var(--her-oro);
+}
+
+.estrella {
+  flex-shrink: 0;
+  color: var(--her-oro);
+}

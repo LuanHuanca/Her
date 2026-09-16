@@ -1,0 +1,147 @@
+.portada {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 24px 20px 28px;
+  border-radius: 0 0 32px 32px;
+  background: var(--her-blush);
+  text-align: center;
+}
+
+.portada > *:not(.deco) {
+  position: relative;
+}
+
+.deco {
+  position: absolute;
+  top: -80px;
+  right: -110px;
+}
+
+.titulo {
+  margin-bottom: 8px;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.avatar {
+  border: 5px solid #fff;
+}
+
+.nombre {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 600;
+}
+
+.chips {
+  display: flex;
+  gap: 8px;
+}
+
+.chipBlanco {
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--her-rosa-oscuro);
+}
+
+.etiquetaEmpleo {
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--her-rosa);
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.detalle {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--her-tinta-2);
+}
+
+.estadisticas {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+
+.estadisticas div {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  gap: 2px;
+  padding: 14px 8px;
+  border-radius: var(--radio-md);
+  background: #fff;
+  border: 1px solid var(--her-linea);
+}
+
+.estadisticas dt {
+  font-size: 12px;
+  color: var(--her-gris);
+}
+
+.estadisticas dd {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.metas {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.opciones {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radio-md);
+  background: #fff;
+  border: 1px solid var(--her-linea);
+  overflow: hidden;
+}
+
+.opciones li + li {
+  border-top: 1px solid var(--her-linea-suave);
+}
+
+.opcion {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 64px;
+  padding: 8px 16px;
+  border: 0;
+  background: transparent;
+  color: var(--her-tinta);
+  font-size: 15px;
+  font-weight: 500;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.opcion:hover {
+  background: var(--her-blush-suave);
+  color: var(--her-tinta);
+}
+
+.opcionTexto {
+  flex: 1;
+}
