@@ -1,0 +1,93 @@
+/* Tokens de marca y estilos base de Her. */
+
+:root {
+  --her-rosa: #c8385a;
+  --her-rosa-oscuro: #9e2743;
+  --her-rosa-medio: #e48a9c;
+  --her-rosa-claro: #f9c9d3;
+  --her-rosa-pista: #f6cbd5;
+  --her-blush: #fce8ec;
+  --her-blush-suave: #fff4f6;
+  --her-linea: #f1d5dc;
+  --her-linea-suave: #f6e3e7;
+  --her-fondo: #fffbfa;
+  --her-tinta: #2b1b21;
+  --her-tinta-2: #5e4b53;
+  --her-gris: #72606a;
+  --her-apagado: #f4eef0;
+  --her-exito-fondo: #e4f2e7;
+  --her-exito: #1e5a32;
+  --her-oro: #d9a441;
+
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+
+  --radio-lg: 24px;
+  --radio-md: 20px;
+  --radio-sm: 14px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  background: #f3e6e9;
+  color: var(--her-tinta);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: var(--her-rosa-oscuro);
+}
+
+:focus-visible {
+  outline: 3px solid var(--her-rosa);
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}

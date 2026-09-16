@@ -1,0 +1,94 @@
+.cabecera {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px 20px 8px;
+}
+
+.historias {
+  list-style: none;
+  display: flex;
+  gap: 14px;
+  margin: 0 -20px;
+  padding: 6px 20px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.historias::-webkit-scrollbar {
+  display: none;
+}
+
+.historia {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: default;
+}
+
+button.historia {
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.historiaNueva {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--her-rosa);
+  color: #fff;
+}
+
+button.historia:hover .historiaNueva {
+  background: var(--her-rosa-oscuro);
+}
+
+.compositor {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: var(--radio-md);
+  background: #fff;
+  border: 1px solid var(--her-linea);
+}
+
+.compositor:focus-within {
+  border-color: var(--her-rosa);
+}
+
+.compositorFila {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.compositorCampo {
+  flex: 1;
+  min-height: 40px;
+  padding: 9px 0;
+  border: 0;
+  background: transparent;
+  font-size: 15px;
+  line-height: 1.5;
+  resize: none;
+  outline: none;
+}
+
+.compositorCampo::placeholder {
+  color: var(--her-gris);
+}
+
+.publicar {
+  align-self: flex-end;
+}

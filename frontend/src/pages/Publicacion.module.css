@@ -1,0 +1,46 @@
+.comentario {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.burbuja {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 4px var(--radio-md) var(--radio-md) var(--radio-md);
+  background: #fff;
+  border: 1px solid var(--her-linea);
+}
+
+.comentarioCabecera {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.nombre {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.texto {
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.formulario {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.formulario input {
+  border-radius: 999px;
+}

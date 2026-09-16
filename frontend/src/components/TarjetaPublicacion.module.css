@@ -1,0 +1,47 @@
+.autora {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.texto {
+  font-size: 15px;
+  line-height: 1.55;
+  white-space: pre-line;
+}
+
+.acciones {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding-top: 4px;
+  border-top: 1px solid var(--her-linea-suave);
+}
+
+.accion {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--her-tinta-2);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+a.accion:hover,
+button.accion:hover {
+  color: var(--her-tinta);
+}
+
+.accionActiva,
+.accionActiva:hover {
+  color: var(--her-rosa);
+}
+
+.compartir {
+  margin-left: auto;
+}

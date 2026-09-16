@@ -1,0 +1,29 @@
+.cabecera {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 24px 20px 4px;
+}
+
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--radio-md);
+  background: var(--her-blush);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.bannerIcono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--her-rosa);
+  color: #fff;
+}

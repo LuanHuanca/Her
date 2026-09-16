@@ -1,0 +1,136 @@
+.pantalla {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--her-blush);
+}
+
+.portada {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 300px;
+  padding: 20px 20px 0;
+}
+
+.deco {
+  position: absolute;
+  top: -110px;
+  right: -120px;
+}
+
+.barra {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.botonClaro {
+  background: var(--her-blush-suave);
+  border-color: #f1c2cd;
+}
+
+.retrato {
+  position: relative;
+  align-self: center;
+  width: 188px;
+  height: 188px;
+  border-radius: 50%;
+  border: 6px solid #fff;
+  overflow: hidden;
+}
+
+.retrato svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.play {
+  position: absolute;
+  left: 50%;
+  bottom: -32px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  margin-left: -32px;
+  border-radius: 50%;
+  border: 4px solid #fff;
+  background: var(--her-rosa);
+  color: #fff;
+  cursor: pointer;
+}
+
+.play:hover {
+  background: var(--her-rosa-oscuro);
+}
+
+.hoja {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border-radius: 32px 32px 0 0;
+  background: var(--her-fondo);
+}
+
+.contenido {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 52px 24px 24px;
+}
+
+.encabezado {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: center;
+}
+
+.frase {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 26px;
+  line-height: 1.15;
+}
+
+.audio {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.tarea {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border-radius: var(--radio-md);
+  background: var(--her-blush-suave);
+  border: 1px solid var(--her-linea);
+}
+
+.compartir {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  font-size: 14px;
+  color: var(--her-tinta-2);
+  cursor: pointer;
+}
+
+.compartir input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--her-rosa);
+}

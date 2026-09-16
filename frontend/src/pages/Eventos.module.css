@@ -1,0 +1,113 @@
+.calendario {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border-radius: var(--radio-lg);
+  background: var(--her-blush);
+}
+
+.mes {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mesTitulo {
+  flex: 1;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.grilla {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fila {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  justify-items: center;
+}
+
+.diaSemana {
+  padding: 4px 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--her-tinta-2);
+}
+
+.celda {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  font-size: 14px;
+  color: var(--her-tinta);
+}
+
+button.celda {
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button.celda:hover {
+  background: #fff;
+}
+
+.conEvento::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--her-rosa);
+}
+
+.hoy {
+  background: var(--her-rosa);
+  color: #fff;
+  font-weight: 700;
+}
+
+.hoy.conEvento::after {
+  background: #fff;
+}
+
+.seleccionado,
+button.seleccionado:hover {
+  background: var(--her-tinta);
+  color: #fff;
+}
+
+.seleccionado::after {
+  background: #fff;
+}
+
+.detalle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--her-gris);
+}
+
+.limpiar {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--her-rosa-oscuro);
+  cursor: pointer;
+}

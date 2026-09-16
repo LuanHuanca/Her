@@ -1,0 +1,84 @@
+.titulo {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.logo {
+  border-radius: var(--radio-sm);
+}
+
+.coincidencias {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  border-radius: var(--radio-md);
+  background: var(--her-blush);
+}
+
+.rayo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--her-rosa);
+  color: #fff;
+}
+
+.coincidenciasTitulo {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.listaCoincidencias {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.listaCoincidencias li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--her-tinta-2);
+}
+
+.listaCoincidencias svg {
+  color: var(--her-rosa);
+}
+
+.zonaCarga {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 16px;
+  border-radius: var(--radio-md);
+  border: 2px dashed #e3cbd2;
+  background: #fff;
+  text-align: center;
+  cursor: pointer;
+}
+
+.zonaCarga:hover {
+  border-color: var(--her-rosa-medio);
+}
+
+.zonaCarga:focus-within {
+  outline: 3px solid var(--her-rosa);
+  outline-offset: 2px;
+}
+
+.zonaConArchivo {
+  border-style: solid;
+  border-color: var(--her-rosa);
+  background: var(--her-blush-suave);
+}

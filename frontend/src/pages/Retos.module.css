@@ -1,0 +1,74 @@
+.cabecera {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 24px 20px 12px;
+}
+
+.racha {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: var(--her-blush);
+  color: var(--her-rosa-oscuro);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.numero {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--her-linea-suave);
+  color: var(--her-tinta-2);
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.numeroActual {
+  background: var(--her-rosa);
+  color: #fff;
+}
+
+.numeroHecho {
+  background: var(--her-exito-fondo);
+  color: var(--her-exito);
+}
+
+.actual {
+  gap: 14px;
+  padding: 18px;
+  border: 1.5px solid var(--her-rosa);
+}
+
+.tituloActual {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.pieActual {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--her-tinta-2);
+}
+
+.continuar {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-weight: 700;
+  color: var(--her-rosa-oscuro);
+}
+
+.candado {
+  flex-shrink: 0;
+  color: var(--her-gris);
+}
