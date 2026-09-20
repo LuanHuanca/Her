@@ -69,8 +69,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    # --reload activa hot-reload de uvicorn al detectar cambios en archivos
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    # Aplica migraciones, siembra datos iniciales si hace falta y recién arranca uvicorn (--reload).
+    command: sh ./entrypoint.sh
 
   # ── Frontend (React + Vite) ──────────────────────────────────────────────
   frontend:

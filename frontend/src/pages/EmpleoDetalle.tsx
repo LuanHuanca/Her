@@ -1,22 +1,19 @@
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
+import { useAlternarGuardado, useEmpleo } from '../api/empleos'
 import Avatar from '../components/Avatar'
 import Boton from '../components/Boton'
 import Cabecera from '../components/Cabecera'
 import Icono from '../components/Icono'
 import { CvIlustrado } from '../components/Ilustraciones'
-import { EMPLEOS } from '../data/mock'
 import { cx } from '../lib/texto'
-import { useHerStore } from '../store/useHerStore'
 import ui from '../styles/ui.module.css'
 import styles from './EmpleoDetalle.module.css'
 
 export default function EmpleoDetalle() {
   const { id } = useParams()
-  const empleo = EMPLEOS.find((e) => e.id === id)
-  const guardado = useHerStore((s) => (empleo ? s.empleosGuardados.includes(empleo.id) : false))
-  const postulada = useHerStore((s) => (empleo ? s.postulaciones.includes(empleo.id) : false))
-  const alternarGuardado = useHerStore((s) => s.alternarGuardado)
+  const { data: empleo, isLoading } = useEmpleo(id)
+  const alternarGuardado = useAlternarGuardado()
   const [copiado, setCopiado] = useState(false)
 
   if (!empleo) {
@@ -24,18 +21,17 @@ export default function EmpleoDetalle() {
       <div className={ui.pantalla}>
         <Cabecera titulo="Empleabilidad" atras="/empleos" />
         <main className={ui.cuerpo}>
-          <p className={ui.vacio}>Esta oferta ya no está disponible.</p>
+          <p className={ui.vacio}>{isLoading ? 'Cargando…' : 'Esta oferta ya no está disponible.'}</p>
         </main>
       </div>
     )
   }
 
   async function compartir() {
-    if (!empleo) return
     const url = window.location.href
     try {
       if (navigator.share) {
-        await navigator.share({ title: empleo.puesto, text: `${empleo.puesto} en ${empleo.empresa.nombre}`, url })
+        await navigator.share({ title: empleo!.puesto, text: `${empleo!.puesto} en ${empleo!.empresa.nombre}`, url })
         return
       }
       await navigator.clipboard.writeText(url)
@@ -86,12 +82,12 @@ export default function EmpleoDetalle() {
           <div className={styles.acciones}>
             <button
               type="button"
-              className={cx(styles.accion, guardado && styles.activa)}
-              aria-pressed={guardado}
-              onClick={() => alternarGuardado(empleo.id)}
+              className={cx(styles.accion, empleo.guardado && styles.activa)}
+              aria-pressed={empleo.guardado}
+              onClick={() => alternarGuardado.mutate(empleo.id)}
             >
-              <Icono nombre="corazon" tamano={20} relleno={guardado} />
-              {guardado ? 'Guardado' : 'Guardar'}
+              <Icono nombre="corazon" tamano={20} relleno={empleo.guardado} />
+              {empleo.guardado ? 'Guardado' : 'Guardar'}
             </button>
             <button type="button" className={styles.accion} onClick={compartir}>
               <Icono nombre={copiado ? 'check' : 'compartir'} tamano={20} />
@@ -119,7 +115,7 @@ export default function EmpleoDetalle() {
       </main>
 
       <footer className={ui.pie}>
-        {postulada ? (
+        {empleo.postulada ? (
           <p className={cx(ui.aviso, styles.postulada)} role="status">
             <Icono nombre="check" tamano={20} strokeWidth={2.5} />
             Ya enviaste tu postulación

@@ -16,6 +16,7 @@ RUN uv pip install --system --no-cache -r pyproject.toml
 # Copiar el resto del código
 # En desarrollo, este COPY se sobreescribe por el bind-mount del compose
 COPY . .
+RUN chmod +x entrypoint.sh
 
 # Exponer el puerto de uvicorn
 EXPOSE 8000

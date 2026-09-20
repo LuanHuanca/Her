@@ -1,42 +1,35 @@
 import { useState, type FormEvent } from 'react'
 import { useParams } from 'react-router-dom'
+import { useComentar, usePublicacion } from '../api/comunidad'
 import Avatar from '../components/Avatar'
 import BotonIcono from '../components/BotonIcono'
 import Cabecera from '../components/Cabecera'
 import TarjetaPublicacion from '../components/TarjetaPublicacion'
-import { PUBLICACIONES } from '../data/mock'
-import { useHerStore } from '../store/useHerStore'
 import ui from '../styles/ui.module.css'
 import styles from './Publicacion.module.css'
 
 export default function Publicacion() {
   const { id = '' } = useParams()
-  const publicacionesPropias = useHerStore((s) => s.publicacionesPropias)
-  const comentariosPropios = useHerStore((s) => s.comentariosPropios[id])
-  const comentar = useHerStore((s) => s.comentar)
+  const { data: publicacion, isLoading } = usePublicacion(id)
+  const comentar = useComentar()
   const [texto, setTexto] = useState('')
-
-  const publicacion = [...publicacionesPropias, ...PUBLICACIONES].find((p) => p.id === id)
 
   if (!publicacion) {
     return (
       <div className={ui.pantalla}>
         <Cabecera titulo="Publicación" atras="/comunidad" />
         <main className={ui.cuerpo}>
-          <p className={ui.vacio}>Esta publicación ya no está disponible.</p>
+          <p className={ui.vacio}>{isLoading ? 'Cargando…' : 'Esta publicación ya no está disponible.'}</p>
         </main>
       </div>
     )
   }
 
-  const comentarios = [...publicacion.comentarios, ...(comentariosPropios ?? [])]
-
   function enviar(evento: FormEvent) {
     evento.preventDefault()
     const limpio = texto.trim()
     if (!limpio) return
-    comentar(id, limpio)
-    setTexto('')
+    comentar.mutate({ publicacionId: publicacion!.id, texto: limpio }, { onSuccess: () => setTexto('') })
   }
 
   return (
@@ -50,11 +43,11 @@ export default function Publicacion() {
           <h2 id="titulo-comentarios" className={ui.seccionTitulo}>
             Comentarios
           </h2>
-          {comentarios.length === 0 ? (
+          {publicacion.comentarios.length === 0 ? (
             <p className={ui.vacio}>Sé la primera en dejar un mensaje de ánimo.</p>
           ) : (
             <ul className={ui.lista}>
-              {comentarios.map((c) => (
+              {publicacion.comentarios.map((c) => (
                 <li key={c.id} className={styles.comentario}>
                   <Avatar persona={c.autora} tamano={40} />
                   <div className={styles.burbuja}>
@@ -83,7 +76,7 @@ export default function Publicacion() {
           placeholder="Escribe un comentario…"
           autoComplete="off"
         />
-        <BotonIcono tipo="submit" icono="enviar" etiqueta="Enviar comentario" primario disabled={!texto.trim()} />
+        <BotonIcono tipo="submit" icono="enviar" etiqueta="Enviar comentario" primario disabled={!texto.trim() || comentar.isPending} />
       </form>
     </div>
   )

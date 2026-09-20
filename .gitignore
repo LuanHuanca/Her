@@ -19,6 +19,9 @@ dist/
 
 # Docker
 .dockerignore
+# ...excepto el del frontend: excluye node_modules (con symlinks de pnpm) del build
+# context; sin él, `docker compose build` falla en máquinas nuevas.
+!frontend/.dockerignore
 
 # OS
 .DS_Store

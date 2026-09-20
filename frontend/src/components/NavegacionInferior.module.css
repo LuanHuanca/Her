@@ -9,6 +9,10 @@
   border-top: 1px solid var(--her-linea);
 }
 
+.logo {
+  display: none;
+}
+
 .item {
   position: relative;
   display: flex;
@@ -41,4 +45,57 @@
   height: 3px;
   border-radius: 0 0 3px 3px;
   background: var(--her-rosa);
+}
+
+/* Tablet/escritorio: barra lateral vertical en vez de barra inferior. */
+@media (min-width: 700px) {
+  .nav {
+    order: -1;
+    position: sticky;
+    top: 0;
+    bottom: auto;
+    grid-template-columns: none;
+    grid-auto-rows: min-content;
+    align-content: start;
+    gap: 4px;
+    width: 220px;
+    height: 100dvh;
+    padding: 20px 12px;
+    border-top: none;
+    border-right: 1px solid var(--her-linea);
+    background: #fff;
+  }
+
+  .logo {
+    display: block;
+    padding: 8px 14px 24px;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 600;
+    font-size: 28px;
+    color: var(--her-rosa);
+  }
+
+  .item {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 14px;
+    min-height: 48px;
+    padding: 0 14px;
+    border-radius: 999px;
+    font-size: 15px;
+  }
+
+  .item:hover {
+    background: var(--her-blush);
+  }
+
+  .activo,
+  .activo:hover {
+    background: var(--her-blush);
+  }
+
+  .activo::before {
+    display: none;
+  }
 }

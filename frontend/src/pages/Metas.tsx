@@ -1,11 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useActualizarMetas, useMetas } from '../api/metas'
 import Boton from '../components/Boton'
 import { CabeceraPasos } from '../components/Cabecera'
 import Icono from '../components/Icono'
 import { OBJETIVOS } from '../data/mock'
 import { plural } from '../lib/texto'
-import { useHerStore } from '../store/useHerStore'
 import ui from '../styles/ui.module.css'
 
 const MINUTOS = [5, 15, 30]
@@ -17,19 +17,25 @@ const HORIZONTES = [
 
 export default function Metas() {
   const navigate = useNavigate()
-  const metasGuardadas = useHerStore((s) => s.metas)
-  const guardarMetas = useHerStore((s) => s.guardarMetas)
+  const { data: metasGuardadas } = useMetas()
+  const actualizarMetas = useActualizarMetas()
 
-  const [objetivos, setObjetivos] = useState<string[]>(metasGuardadas.objetivos)
-  const [minutosAlDia, setMinutosAlDia] = useState(metasGuardadas.minutosAlDia)
-  const [horizonteMeses, setHorizonteMeses] = useState(metasGuardadas.horizonteMeses)
+  const [objetivos, setObjetivos] = useState<string[]>([])
+  const [minutosAlDia, setMinutosAlDia] = useState(15)
+  const [horizonteMeses, setHorizonteMeses] = useState(6)
+
+  useEffect(() => {
+    if (!metasGuardadas) return
+    setObjetivos(metasGuardadas.objetivos)
+    setMinutosAlDia(metasGuardadas.minutosAlDia)
+    setHorizonteMeses(metasGuardadas.horizonteMeses)
+  }, [metasGuardadas])
 
   const alternarObjetivo = (id: string) =>
     setObjetivos((actuales) => (actuales.includes(id) ? actuales.filter((x) => x !== id) : [...actuales, id]))
 
   function comenzar() {
-    guardarMetas({ objetivos, minutosAlDia, horizonteMeses })
-    navigate('/inicio')
+    actualizarMetas.mutate({ objetivos, minutosAlDia, horizonteMeses }, { onSuccess: () => navigate('/inicio') })
   }
 
   return (
@@ -112,8 +118,8 @@ export default function Metas() {
       </main>
 
       <footer className={ui.pie}>
-        <Boton bloque onClick={comenzar} disabled={objetivos.length === 0}>
-          Comenzar mi primer reto
+        <Boton bloque onClick={comenzar} disabled={objetivos.length === 0 || actualizarMetas.isPending}>
+          {actualizarMetas.isPending ? 'Guardando…' : 'Comenzar mi primer reto'}
         </Boton>
         {objetivos.length === 0 && <p className={`${ui.meta} ${ui.centrado}`}>Elige al menos una meta para continuar.</p>}
       </footer>

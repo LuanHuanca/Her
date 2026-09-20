@@ -14,6 +14,7 @@ const PESTANAS: { to: string; etiqueta: string; icono: NombreIcono }[] = [
 export default function NavegacionInferior() {
   return (
     <nav aria-label="Navegación principal" className={styles.nav}>
+      <span className={styles.logo}>Her</span>
       {PESTANAS.map((p) => (
         <NavLink key={p.to} to={p.to} className={({ isActive }) => cx(styles.item, isActive && styles.activo)}>
           <Icono nombre={p.icono} />

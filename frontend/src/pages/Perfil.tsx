@@ -1,11 +1,16 @@
+import { useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from 'react-router-dom'
+import { useEventos } from '../api/eventos'
+import { usePerfil } from '../api/perfil'
+import { useRetoHoy } from '../api/retos'
+import { useMetas } from '../api/metas'
 import Avatar from '../components/Avatar'
 import Decoracion from '../components/Decoracion'
 import Icono, { type NombreIcono } from '../components/Icono'
 import { OBJETIVOS } from '../data/mock'
 import { edadDesde } from '../lib/fechas'
 import { cx, formatoPuntos, iniciales } from '../lib/texto'
-import { useHerStore } from '../store/useHerStore'
+import { useAuthStore } from '../store/useAuthStore'
 import ui from '../styles/ui.module.css'
 import styles from './Perfil.module.css'
 
@@ -17,19 +22,28 @@ const OPCIONES: { to: string; etiqueta: string; icono: NombreIcono }[] = [
 
 export default function Perfil() {
   const navigate = useNavigate()
-  const perfil = useHerStore((s) => s.perfil)
-  const metas = useHerStore((s) => s.metas)
-  const reto = useHerStore((s) => s.reto)
-  const puntos = useHerStore((s) => s.puntos)
-  const eventosInscritos = useHerStore((s) => s.eventosInscritos)
-  const cerrarSesion = useHerStore((s) => s.cerrarSesion)
+  const queryClient = useQueryClient()
+  const cerrarSesion = useAuthStore((s) => s.cerrarSesion)
+  const { data: perfil } = usePerfil()
+  const { data: metas } = useMetas()
+  const { data: reto } = useRetoHoy()
+  const { data: eventos } = useEventos()
+
+  if (!perfil || !metas || !reto) {
+    return (
+      <div className={ui.pantalla}>
+        <p className={ui.vacio}>Cargando…</p>
+      </div>
+    )
+  }
 
   const edad = edadDesde(perfil.fechaNacimiento)
   const objetivos = OBJETIVOS.filter((o) => metas.objetivos.includes(o.id))
+  const eventosInscritos = (eventos ?? []).filter((e) => e.inscrita).length
 
   function salir() {
-    // TODO: invalidar el token JWT cuando exista el router de auth.
     cerrarSesion()
+    queryClient.clear()
     navigate('/')
   }
 
@@ -66,11 +80,11 @@ export default function Perfil() {
           </div>
           <div>
             <dt>Puntos</dt>
-            <dd>{formatoPuntos(puntos)}</dd>
+            <dd>{formatoPuntos(reto.puntosTotales)}</dd>
           </div>
           <div>
             <dt>Eventos</dt>
-            <dd>{eventosInscritos.length}</dd>
+            <dd>{eventosInscritos}</dd>
           </div>
         </dl>
 
