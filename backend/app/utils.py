@@ -1,5 +1,7 @@
 """Utilidades pequeñas replicadas del frontend (src/lib/texto.ts) para que las
 respuestas del API ya vengan listas para pintar sin lógica adicional en React."""
+import re
+import unicodedata
 from datetime import date, datetime, timezone
 
 
@@ -45,3 +47,11 @@ def edad_desde(fecha_nacimiento: date, hoy: date | None = None) -> int:
     hoy = hoy or date.today()
     cumplio_este_anio = (hoy.month, hoy.day) >= (fecha_nacimiento.month, fecha_nacimiento.day)
     return hoy.year - fecha_nacimiento.year - (0 if cumplio_este_anio else 1)
+
+
+def slugificar(texto: str) -> str:
+    """'Desarrolladora web júnior' -> 'desarrolladora-web-junior'. Usado por el panel de
+    administración para generar ids legibles de módulos y empleos."""
+    normalizado = unicodedata.normalize("NFKD", texto).encode("ascii", "ignore").decode("ascii")
+    slug = re.sub(r"[^a-z0-9]+", "-", normalizado.lower()).strip("-")
+    return slug or "item"

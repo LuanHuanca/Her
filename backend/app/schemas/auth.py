@@ -18,6 +18,8 @@ class UsuarioOut(PerfilOut):
     id: int
     email: EmailStr
     tono: str
+    rol: str
+    activo: bool
 
 
 class SesionOut(CamelModel):

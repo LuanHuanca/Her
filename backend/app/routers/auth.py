@@ -58,6 +58,8 @@ def login(datos: LoginIn, db: Session = Depends(get_db)) -> SesionOut:
     usuario = db.query(Usuario).filter(Usuario.email == datos.email.lower()).first()
     if usuario is None or not verify_password(datos.password, usuario.password_hash):
         raise error
+    if not usuario.activo:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Esta cuenta fue desactivada")
     return SesionOut(token=crear_token(usuario.id), usuario=_usuario_out(usuario))
 
 

@@ -50,3 +50,8 @@ class TipoChat(str, Enum):
 class FotoEscena(str, Enum):
     actividad = "actividad"
     estudio = "estudio"
+
+
+class Rol(str, Enum):
+    usuaria = "usuaria"
+    admin = "admin"

@@ -20,10 +20,14 @@ export interface Perfil {
   eventos: PreferenciaEventos
 }
 
+export type Rol = 'usuaria' | 'admin'
+
 export interface UsuarioAutenticado extends Perfil {
   id: number
   email: string
   tono: Tono
+  rol: Rol
+  activo: boolean
 }
 
 export interface Metas {

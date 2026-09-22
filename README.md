@@ -110,6 +110,27 @@ El seed inicial crea varias usuarias demo (contraseña `Her12345` para todas):
 | `diana@her.app` | Módulo completo (día 21), la que aparece como "ganadora de la semana" |
 | `lucero@her.app`, `andrea@her.app`, `jessica@her.app`, `cristina@her.app`, `juliana@her.app` | Perfiles de apoyo (autoras de publicaciones, empleos, chats) |
 
+Además, `admin@her.app` / `Admin12345` es la cuenta de administración (rol `admin`) — ver siguiente sección.
+
+## Panel de administración
+
+En `/admin` (enlace también desde Perfil → "Panel de administración" si la cuenta es admin) hay un panel de escritorio,
+separado del diseño mobile-first del resto de la app, para administrar todo el contenido sin tocar el código:
+
+| Sección | Qué permite |
+|---|---|
+| Panel | Resumen: usuarias, publicaciones, empleos, postulaciones, eventos próximos |
+| Usuarias | Buscar, cambiar el rol (`usuaria`/`admin`), activar/desactivar cuentas, eliminar |
+| Módulos y retos | Crear/editar/eliminar los 6 módulos y, dentro de cada uno, las tareas de sus 21 días |
+| Eventos | Crear/editar/eliminar charlas y talleres |
+| Empleos | Crear/editar/eliminar ofertas y las empresas que las publican |
+| Comunidad | Ver y eliminar publicaciones y comentarios (moderación) |
+
+La seguridad real vive en el backend: cada endpoint bajo `/api/admin/*` exige `rol=admin` vía la dependencia
+`get_current_admin` (`backend/app/deps.py`) — el guard del frontend (`RequireAdmin`) es solo para no mostrar la UI a
+quien no la necesita, no la barrera de seguridad. Reglas de negocio ya cubiertas: una admin no puede desactivarse ni
+eliminarse a sí misma, y no se puede quitar el rol o eliminar a la última cuenta admin que quede.
+
 ## Pantallas del frontend
 
 La app es responsive: en celular se ve como una columna a pantalla completa con navegación inferior; a partir de
@@ -179,11 +200,11 @@ todavía" y no un bug:
   funciona el registro por correo/contraseña.
 - **Contenido de los 21 días:** solo el día 7 de "Amor propio" tiene contenido diseñado a mano
   (el que ya existía en el prototipo). El resto de los 126 días (6 módulos × 21 días) es texto
-  plantilla generado en `backend/app/seed.py`, pensado para que el equipo de contenido lo
-  reemplace.
+  plantilla generado en `backend/app/seed.py` — ya se puede reemplazar sin tocar código desde
+  el [panel de administración](#panel-de-administración) (`/admin` → Módulos y retos).
 - **Sin pruebas de frontend**, sin CI/CD configurado, y sin verificación visual del diseño
-  responsive en un navegador real (se validó con `tsc`, el build de producción y llamadas
-  directas a la API).
+  responsive ni del panel de administración en un navegador real (se validó con `tsc`, el build
+  de producción y llamadas directas a la API).
 
 Cosas que faltan para llevar esto a producción (no solo desarrollo local):
 

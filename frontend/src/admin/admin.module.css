@@ -1,0 +1,258 @@
+/* Primitivas compartidas por todas las pantallas del panel de administración. */
+
+.cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.titulo {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 600;
+}
+
+.subtitulo {
+  margin-top: 4px;
+  font-size: 14px;
+  color: var(--her-gris);
+}
+
+/* ── Tarjetas de resumen (dashboard) ───────────────────────────────────── */
+.tarjetas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.tarjeta {
+  padding: 18px 20px;
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid var(--her-linea);
+}
+
+.tarjetaValor {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 600;
+  color: var(--her-rosa-oscuro);
+}
+
+.tarjetaEtiqueta {
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--her-gris);
+}
+
+/* ── Tabla ──────────────────────────────────────────────────────────────── */
+.envoltorioTabla {
+  overflow-x: auto;
+  border-radius: 16px;
+  border: 1px solid var(--her-linea);
+  background: #fff;
+}
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.tabla th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--her-gris);
+  border-bottom: 1px solid var(--her-linea);
+  white-space: nowrap;
+}
+
+.tabla td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--her-linea-suave);
+  vertical-align: middle;
+}
+
+.tabla tr:last-child td {
+  border-bottom: none;
+}
+
+.celdaAcciones {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  white-space: nowrap;
+}
+
+/* ── Controles ──────────────────────────────────────────────────────────── */
+.boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1.5px solid transparent;
+  background: var(--her-rosa);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.boton:hover:not(:disabled) {
+  background: var(--her-rosa-oscuro);
+}
+
+.boton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.botonSecundario {
+  background: #fff;
+  border-color: var(--her-linea);
+  color: var(--her-tinta);
+}
+
+.botonSecundario:hover:not(:disabled) {
+  border-color: var(--her-rosa-medio);
+  background: var(--her-blush);
+}
+
+.botonPeligro {
+  background: #fff;
+  border-color: #e3b3bd;
+  color: #a3273f;
+}
+
+.botonPeligro:hover:not(:disabled) {
+  background: #fde8ec;
+}
+
+.botonChico {
+  min-height: 30px;
+  padding: 0 12px;
+  font-size: 12px;
+}
+
+/* ── Formularios (panel lateral / modal simple) ────────────────────────── */
+.panelFormulario {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  justify-content: flex-end;
+  background: rgba(43, 27, 33, 0.35);
+}
+
+.formulario {
+  width: min(480px, 100%);
+  height: 100%;
+  overflow-y: auto;
+  padding: 28px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.campo label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--her-tinta-2);
+}
+
+.entrada {
+  min-height: 42px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1.5px solid var(--her-linea);
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--her-tinta);
+}
+
+textarea.entrada {
+  min-height: 90px;
+  padding: 10px 14px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.entrada:focus {
+  outline: none;
+  border-color: var(--her-rosa);
+  box-shadow: 0 0 0 3px var(--her-rosa-pista);
+}
+
+.dosColumnas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.accionesFormulario {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+/* ── Estados ────────────────────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--her-apagado);
+  color: var(--her-tinta-2);
+}
+
+.badgeExito {
+  background: var(--her-exito-fondo);
+  color: var(--her-exito);
+}
+
+.badgePeligro {
+  background: #fde8ec;
+  color: #a3273f;
+}
+
+.vacio {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--her-gris);
+  font-size: 14px;
+}
+
+.error {
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: #fde8ec;
+  color: #a3273f;
+  font-size: 13px;
+}
+
+.listaExpandible {
+  padding: 12px 16px 16px;
+  background: var(--her-blush-suave);
+  border-top: 1px solid var(--her-linea-suave);
+}

@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.config import settings
-from app.routers import auth, comunidad, empleos, eventos, mensajes, metas, perfil, recompensas, retos
+from app.routers import admin, auth, comunidad, empleos, eventos, mensajes, metas, perfil, recompensas, retos
 
 app = FastAPI(
     title="Her Platform API",
@@ -35,5 +35,5 @@ def healthcheck():
     return {"status": "ok", "service": "her-backend"}
 
 
-for router in (auth.router, perfil.router, metas.router, retos.router, recompensas.router, comunidad.router, mensajes.router, eventos.router, empleos.router):
+for router in (auth.router, perfil.router, metas.router, retos.router, recompensas.router, comunidad.router, mensajes.router, eventos.router, empleos.router, admin.router):
     app.include_router(router, prefix="/api")

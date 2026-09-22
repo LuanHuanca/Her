@@ -52,3 +52,11 @@ def token(client: TestClient, email_unico: str) -> str:
 @pytest.fixture()
 def auth_headers(token: str) -> dict:
     return {"Authorization": f"Bearer {token}"}
+
+
+@pytest.fixture()
+def admin_headers(client: TestClient) -> dict:
+    """Inicia sesión con la cuenta admin sembrada por app.seed (admin@her.app)."""
+    respuesta = client.post("/api/auth/login", json={"email": "admin@her.app", "password": "Admin12345"})
+    assert respuesta.status_code == 200, respuesta.text
+    return {"Authorization": f"Bearer {respuesta.json()['token']}"}

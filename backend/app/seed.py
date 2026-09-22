@@ -11,7 +11,7 @@ Se ejecuta automáticamente al levantar el contenedor backend (ver entrypoint.sh
 from datetime import date, datetime, timedelta, timezone
 
 from app.db import SessionLocal
-from app.enums import BuscaEmpleo, EmpleoModalidad, EventoModalidad, FotoEscena, Jornada, PreferenciaEventos, TipoChat, Tono
+from app.enums import BuscaEmpleo, EmpleoModalidad, EventoModalidad, FotoEscena, Jornada, PreferenciaEventos, Rol, TipoChat, Tono
 from app.models import (
     Chat,
     ChatParticipante,
@@ -31,6 +31,7 @@ from app.models import (
 from app.security import hash_password
 
 PASSWORD_DEMO = "Her12345"
+PASSWORD_ADMIN = "Admin12345"
 
 MODULOS = [
     {"id": "amor-propio", "numero": 1, "titulo": "Amor propio y autoconfianza", "corto": "Amor propio", "descripcion": "Conócete, valórate y habla bien de ti"},
@@ -125,6 +126,7 @@ def _tareas_modulo(modulo_id: str, titulo_modulo: str) -> list[dict]:
 
 
 PERSONAS_DEMO = {
+    "admin": {"email": "admin@her.app", "nombre": "Admin Her", "tono": Tono.cielo, "ciudad": "Cochabamba", "ocupacion": "Administración", "hijos": 0},
     "litzy": {"email": "litzy@her.app", "nombre": "Litzy Tapia", "tono": Tono.rosa, "ciudad": "Cochabamba", "ocupacion": "Ingeniera de sistemas", "hijos": 2},
     "diana": {"email": "diana@her.app", "nombre": "Diana Romero", "tono": Tono.rosa, "ciudad": "Cochabamba", "ocupacion": "Emprendedora", "hijos": 1},
     "lucero": {"email": "lucero@her.app", "nombre": "Lucero Quiroz", "tono": Tono.lavanda, "ciudad": "Santa Cruz", "ocupacion": "Desarrolladora web", "hijos": 1},
@@ -171,7 +173,7 @@ def run() -> None:
         for clave, datos in PERSONAS_DEMO.items():
             usuario = Usuario(
                 email=datos["email"],
-                password_hash=hash_password(PASSWORD_DEMO),
+                password_hash=hash_password(PASSWORD_ADMIN if clave == "admin" else PASSWORD_DEMO),
                 nombre=datos["nombre"],
                 fecha_nacimiento=date(1996, 5, 17) if clave == "litzy" else date(1993, 3, 10),
                 ciudad=datos["ciudad"],
@@ -180,6 +182,7 @@ def run() -> None:
                 busca_empleo=BuscaEmpleo.si,
                 eventos=PreferenciaEventos.ambos,
                 tono=datos["tono"],
+                rol=Rol.admin if clave == "admin" else Rol.usuaria,
             )
             db.add(usuario)
             usuarios[clave] = usuario

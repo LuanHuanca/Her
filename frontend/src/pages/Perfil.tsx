@@ -14,7 +14,7 @@ import { useAuthStore } from '../store/useAuthStore'
 import ui from '../styles/ui.module.css'
 import styles from './Perfil.module.css'
 
-const OPCIONES: { to: string; etiqueta: string; icono: NombreIcono }[] = [
+const OPCIONES_BASE: { to: string; etiqueta: string; icono: NombreIcono }[] = [
   { to: '/metas', etiqueta: 'Preferencias y metas', icono: 'ajustes' },
   { to: '/registro', etiqueta: 'Editar datos', icono: 'editar' },
   { to: '/recompensas', etiqueta: 'Mis recompensas', icono: 'trofeo' },
@@ -24,6 +24,7 @@ export default function Perfil() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const cerrarSesion = useAuthStore((s) => s.cerrarSesion)
+  const esAdmin = useAuthStore((s) => s.usuario?.rol === 'admin')
   const { data: perfil } = usePerfil()
   const { data: metas } = useMetas()
   const { data: reto } = useRetoHoy()
@@ -40,6 +41,9 @@ export default function Perfil() {
   const edad = edadDesde(perfil.fechaNacimiento)
   const objetivos = OBJETIVOS.filter((o) => metas.objetivos.includes(o.id))
   const eventosInscritos = (eventos ?? []).filter((e) => e.inscrita).length
+  const opciones = esAdmin
+    ? [...OPCIONES_BASE, { to: '/admin', etiqueta: 'Panel de administración', icono: 'ajustes' as NombreIcono }]
+    : OPCIONES_BASE
 
   function salir() {
     cerrarSesion()
@@ -111,7 +115,7 @@ export default function Perfil() {
         <section className={ui.seccion}>
           <h2 className={ui.seccionTitulo}>Configuración</h2>
           <ul className={styles.opciones}>
-            {OPCIONES.map((o) => (
+            {opciones.map((o) => (
               <li key={o.to}>
                 <Link to={o.to} className={styles.opcion}>
                   <span className={ui.iconoCirculo}>

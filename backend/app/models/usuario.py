@@ -1,11 +1,11 @@
 from datetime import date, datetime
 
-from sqlalchemy import Date, DateTime, Enum, ForeignKey, Integer, String, func
+from sqlalchemy import Boolean, Date, DateTime, Enum, ForeignKey, Integer, String, func
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
-from app.enums import BuscaEmpleo, PreferenciaEventos, Tono
+from app.enums import BuscaEmpleo, PreferenciaEventos, Rol, Tono
 
 
 def _enum(tipo):
@@ -29,6 +29,9 @@ class Usuario(Base):
     # de los schemas no necesite un alias especial.
     eventos: Mapped[PreferenciaEventos] = mapped_column(_enum(PreferenciaEventos), default=PreferenciaEventos.ambos)
     tono: Mapped[Tono] = mapped_column(_enum(Tono))
+
+    rol: Mapped[Rol] = mapped_column(_enum(Rol), default=Rol.usuaria, server_default=Rol.usuaria.value)
+    activo: Mapped[bool] = mapped_column(Boolean, default=True, server_default="true")
 
     creado_en: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 

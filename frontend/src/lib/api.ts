@@ -49,4 +49,6 @@ export const api = {
   post: <T>(ruta: string, body?: unknown) =>
     solicitud<T>(ruta, { method: 'POST', body: body === undefined ? undefined : JSON.stringify(body) }),
   put: <T>(ruta: string, body?: unknown) => solicitud<T>(ruta, { method: 'PUT', body: JSON.stringify(body) }),
+  patch: <T>(ruta: string, body?: unknown) => solicitud<T>(ruta, { method: 'PATCH', body: JSON.stringify(body) }),
+  delete: <T>(ruta: string) => solicitud<T>(ruta, { method: 'DELETE' }),
 }
