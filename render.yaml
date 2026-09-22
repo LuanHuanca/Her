@@ -47,7 +47,9 @@ services:
   - type: web
     name: her-frontend
     runtime: static
-    buildCommand: cd frontend && npm install -g pnpm@9 && pnpm install && pnpm build
+    # `npm install -g` falla en el build de Render con EROFS (filesystem global de solo
+    # lectura) — corepack sí puede activar pnpm sin escribir ahí.
+    buildCommand: corepack enable && corepack prepare pnpm@9 --activate && cd frontend && pnpm install && pnpm build
     staticPublishPath: ./frontend/dist
     branch: Dev
     routes:
