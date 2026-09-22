@@ -4,7 +4,10 @@
  */
 import { useAuthStore } from '../store/useAuthStore'
 
-const BASE_URL: string = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
+// Algunas plataformas (p. ej. Render, vía `fromService: property: host`) solo pueden
+// inyectar el hostname del backend sin esquema — se asume https si no viene uno.
+const VITE_API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
+const BASE_URL: string = VITE_API_URL.includes('://') ? VITE_API_URL : `https://${VITE_API_URL}`
 
 export class ApiError extends Error {
   status: number

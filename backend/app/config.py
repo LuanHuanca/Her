@@ -17,7 +17,10 @@ class Settings(BaseSettings):
 
     @property
     def cors_origins_list(self) -> list[str]:
-        return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
+        # Algunas plataformas (p. ej. Render, vía `fromService: property: host`) solo pueden
+        # inyectar el hostname sin esquema — se asume https si no viene uno.
+        origenes = (o.strip() for o in self.cors_origins.split(","))
+        return [o if "://" in o else f"https://{o}" for o in origenes if o]
 
 
 settings = Settings()
