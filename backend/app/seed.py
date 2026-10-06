@@ -1,4 +1,4 @@
-"""Seed inicial de la base de datos. Idempotente: si ya hay usuarios, no hace nada.
+"""Seed inicial de la base de datos. Idempotente sección por sección (ver run()).
 
 Contenido de los módulos: el día 7 de "Amor propio" es el único que ya estaba diseñado
 en el prototipo (frontend/src/data/mock.ts) y se preserva tal cual. Los otros 125 días
@@ -9,6 +9,8 @@ reemplace más adelante por las 126 lecciones reales.
 Se ejecuta automáticamente al levantar el contenedor backend (ver entrypoint.sh).
 """
 from datetime import date, datetime, timedelta, timezone
+
+from sqlalchemy.orm import Session
 
 from app.db import SessionLocal
 from app.enums import BuscaEmpleo, EmpleoModalidad, EventoModalidad, FotoEscena, Jornada, PreferenciaEventos, Rol, TipoChat, Tono
@@ -154,23 +156,31 @@ EVENTOS = [
 
 
 def run() -> None:
+    """Idempotente *por sección*, no todo-o-nada: si la base de datos ya tiene algo
+    sembrado (p. ej. el entorno en producción, que arrancó antes de que existiera la
+    cuenta admin), cada bloque revisa su propia tabla y solo siembra lo que falte —
+    así un redeploy puede agregar usuarias/contenido nuevo sin duplicar lo que ya existe."""
     db = SessionLocal()
     try:
-        if db.query(Usuario).first() is not None:
-            print("[seed] Ya hay datos, no se vuelve a sembrar.")
-            return
+        if db.query(Modulo).first() is None:
+            print("[seed] Sembrando módulos y tareas...")
+            for m in MODULOS:
+                modulo = Modulo(**m)
+                db.add(modulo)
+                for t in _tareas_modulo(m["id"], m["titulo"]):
+                    db.add(TareaModulo(modulo_id=m["id"], **t))
+            db.flush()
+        else:
+            print("[seed] Módulos ya sembrados, omito.")
 
-        print("[seed] Sembrando módulos y tareas...")
-        for m in MODULOS:
-            modulo = Modulo(**m)
-            db.add(modulo)
-            for t in _tareas_modulo(m["id"], m["titulo"]):
-                db.add(TareaModulo(modulo_id=m["id"], **t))
-        db.flush()
-
-        print("[seed] Sembrando usuarias demo...")
+        print("[seed] Verificando usuarias demo...")
         usuarios: dict[str, Usuario] = {}
+        usuarios_nuevas: list[str] = []
         for clave, datos in PERSONAS_DEMO.items():
+            existente = db.query(Usuario).filter(Usuario.email == datos["email"]).first()
+            if existente is not None:
+                usuarios[clave] = existente
+                continue
             usuario = Usuario(
                 email=datos["email"],
                 password_hash=hash_password(PASSWORD_ADMIN if clave == "admin" else PASSWORD_DEMO),
@@ -186,20 +196,36 @@ def run() -> None:
             )
             db.add(usuario)
             usuarios[clave] = usuario
+            usuarios_nuevas.append(clave)
         db.flush()
+        if usuarios_nuevas:
+            print(f"[seed] Usuarias nuevas creadas: {', '.join(usuarios_nuevas)}")
+        else:
+            print("[seed] Todas las usuarias demo ya existían.")
 
-        print("[seed] Sembrando metas y progreso...")
-        for clave, usuario in usuarios.items():
-            if clave == "litzy":
-                db.add(Meta(usuario_id=usuario.id, objetivos=["empleo", "tiempo"], minutos_al_dia=15, horizonte_meses=6))
-                db.add(ProgresoReto(usuario_id=usuario.id, modulo_id="amor-propio", dia_actual=7, racha=6, completado_hoy=False, puntos=8918))
-            elif clave == "diana":
-                db.add(Meta(usuario_id=usuario.id, objetivos=["negocio", "finanzas"], minutos_al_dia=15, horizonte_meses=12))
-                db.add(ProgresoReto(usuario_id=usuario.id, modulo_id="amor-propio", dia_actual=21, racha=21, completado_hoy=True, puntos=15230))
-            else:
-                db.add(Meta(usuario_id=usuario.id, objetivos=["tiempo"], minutos_al_dia=5, horizonte_meses=3))
-                db.add(ProgresoReto(usuario_id=usuario.id, modulo_id="amor-propio", dia_actual=1, racha=0, completado_hoy=False, puntos=0))
-        db.flush()
+        if usuarios_nuevas:
+            print("[seed] Sembrando metas y progreso de las usuarias nuevas...")
+            for clave in usuarios_nuevas:
+                usuario = usuarios[clave]
+                if clave == "litzy":
+                    db.add(Meta(usuario_id=usuario.id, objetivos=["empleo", "tiempo"], minutos_al_dia=15, horizonte_meses=6))
+                    db.add(ProgresoReto(usuario_id=usuario.id, modulo_id="amor-propio", dia_actual=7, racha=6, completado_hoy=False, puntos=8918))
+                elif clave == "diana":
+                    db.add(Meta(usuario_id=usuario.id, objetivos=["negocio", "finanzas"], minutos_al_dia=15, horizonte_meses=12))
+                    db.add(ProgresoReto(usuario_id=usuario.id, modulo_id="amor-propio", dia_actual=21, racha=21, completado_hoy=True, puntos=15230))
+                else:
+                    db.add(Meta(usuario_id=usuario.id, objetivos=["tiempo"], minutos_al_dia=5, horizonte_meses=3))
+                    db.add(ProgresoReto(usuario_id=usuario.id, modulo_id="amor-propio", dia_actual=1, racha=0, completado_hoy=False, puntos=0))
+            db.flush()
+
+        if db.query(Empresa).first() is not None:
+            print("[seed] Empresas y empleos ya sembrados, omito.")
+            _sembrar_eventos_si_falta(db)
+            _sembrar_publicaciones_si_falta(db, usuarios)
+            _sembrar_chats_si_falta(db, usuarios)
+            db.commit()
+            print("[seed] Listo.")
+            return
 
         print("[seed] Sembrando empresas y empleos...")
         empresas = {}
@@ -225,55 +251,74 @@ def run() -> None:
                 )
             )
 
-        print("[seed] Sembrando eventos...")
-        hoy = date.today()
-        for e in EVENTOS:
-            db.add(
-                Evento(
-                    titulo=e["titulo"], fecha=hoy + timedelta(days=e["offset"]), hora=e["hora"],
-                    duracion_min=e["duracion"], modalidad=e["modalidad"], lugar=e["lugar"], descripcion=e["descripcion"],
-                )
-            )
-
-        print("[seed] Sembrando publicaciones y comentarios...")
-        p1 = Publicacion(autor_id=usuarios["diana"].id, etiqueta="Día 5", texto="Estoy muy feliz de decidir hacer ejercicio hoy a pesar de estar muy ocupada. ¡El reto me está ayudando a darme un espacio!", foto_descripcion="Zapatillas rosadas, botella de agua y cuerda para saltar", foto_escena=FotoEscena.actividad)
-        p2 = Publicacion(autor_id=usuarios["lucero"].id, etiqueta="Evento", texto="La última reunión me inspiró a tomar este nuevo curso. ¡Gracias a las mentoras por compartir sus historias!", foto_descripcion="Mujer estudiando frente a su laptop", foto_escena=FotoEscena.estudio)
-        p3 = Publicacion(autor_id=usuarios["jessica"].id, etiqueta="Finanzas", texto="Hoy armé mi primer presupuesto semanal con la plantilla del módulo. Pequeños pasos, grandes cambios.")
-        db.add_all([p1, p2, p3])
-        db.flush()
-
-        db.add(Comentario(publicacion_id=p1.id, autor_id=usuarios["andrea"].id, texto="¡Qué bien, Diana! Ese espacio para ti vale oro."))
-        db.add(Comentario(publicacion_id=p2.id, autor_id=usuarios["cristina"].id, texto="Felicidades, ¿me pasas el enlace? Me interesa."))
-        db.add(Comentario(publicacion_id=p2.id, autor_id=usuarios["jessica"].id, texto="¡Vamos, Lucero! Cuéntanos cómo te va."))
-
-        for autora, publicacion in [("lucero", p1), ("andrea", p1), ("jessica", p1), ("diana", p2), ("cristina", p2), ("litzy", p2), ("andrea", p3), ("juliana", p3)]:
-            db.add(Like(usuario_id=usuarios[autora].id, publicacion_id=publicacion.id))
-
-        print("[seed] Sembrando chats...")
-        chats_data = [
-            {"otro": "jessica", "tipo": TipoChat.amiga, "texto": "Espero que estés bien", "no_leidos": 1},
-            {"otro": "diana", "tipo": TipoChat.amiga, "texto": "Nos vemos en la reunión", "no_leidos": 0},
-            {"otro": "lucero", "tipo": TipoChat.amiga, "texto": "Tu historia me inspiró", "no_leidos": 0},
-            {"otro": "andrea", "tipo": TipoChat.mentora, "texto": "¿Ya hiciste tu reto de hoy?", "no_leidos": 2},
-            {"grupo": "Mamás emprendedoras", "tipo": TipoChat.grupo, "texto": "Andrea: ¿Quién va al encuentro del sábado?", "no_leidos": 3},
-            {"otro": "cristina", "tipo": TipoChat.amiga, "texto": "¡Hola!", "no_leidos": 0},
-            {"otro": "juliana", "tipo": TipoChat.amiga, "texto": "¡Me encanta!", "no_leidos": 0},
-        ]
-        for i, c in enumerate(chats_data):
-            if "grupo" in c:
-                chat = Chat(tipo=c["tipo"], otro_nombre=c["grupo"], otro_iniciales="ME", otro_tono=Tono.salvia)
-            else:
-                otro = usuarios[c["otro"]]
-                chat = Chat(tipo=c["tipo"], otro_nombre=otro.nombre, otro_iniciales="".join(p[0].upper() for p in otro.nombre.split()[:2]), otro_tono=otro.tono)
-            db.add(chat)
-            db.flush()
-            db.add(ChatParticipante(chat_id=chat.id, usuario_id=usuarios["litzy"].id, no_leidos=c["no_leidos"]))
-            db.add(Mensaje(chat_id=chat.id, texto=c["texto"], creado_en=datetime.now(timezone.utc) - timedelta(minutes=(i + 1) * 5)))
+        _sembrar_eventos_si_falta(db)
+        _sembrar_publicaciones_si_falta(db, usuarios)
+        _sembrar_chats_si_falta(db, usuarios)
 
         db.commit()
         print("[seed] Listo.")
     finally:
         db.close()
+
+
+def _sembrar_eventos_si_falta(db: Session) -> None:
+    if db.query(Evento).first() is not None:
+        print("[seed] Eventos ya sembrados, omito.")
+        return
+    print("[seed] Sembrando eventos...")
+    hoy = date.today()
+    for e in EVENTOS:
+        db.add(
+            Evento(
+                titulo=e["titulo"], fecha=hoy + timedelta(days=e["offset"]), hora=e["hora"],
+                duracion_min=e["duracion"], modalidad=e["modalidad"], lugar=e["lugar"], descripcion=e["descripcion"],
+            )
+        )
+
+
+def _sembrar_publicaciones_si_falta(db: Session, usuarios: dict) -> None:
+    if db.query(Publicacion).first() is not None:
+        print("[seed] Publicaciones ya sembradas, omito.")
+        return
+    print("[seed] Sembrando publicaciones y comentarios...")
+    p1 = Publicacion(autor_id=usuarios["diana"].id, etiqueta="Día 5", texto="Estoy muy feliz de decidir hacer ejercicio hoy a pesar de estar muy ocupada. ¡El reto me está ayudando a darme un espacio!", foto_descripcion="Zapatillas rosadas, botella de agua y cuerda para saltar", foto_escena=FotoEscena.actividad)
+    p2 = Publicacion(autor_id=usuarios["lucero"].id, etiqueta="Evento", texto="La última reunión me inspiró a tomar este nuevo curso. ¡Gracias a las mentoras por compartir sus historias!", foto_descripcion="Mujer estudiando frente a su laptop", foto_escena=FotoEscena.estudio)
+    p3 = Publicacion(autor_id=usuarios["jessica"].id, etiqueta="Finanzas", texto="Hoy armé mi primer presupuesto semanal con la plantilla del módulo. Pequeños pasos, grandes cambios.")
+    db.add_all([p1, p2, p3])
+    db.flush()
+
+    db.add(Comentario(publicacion_id=p1.id, autor_id=usuarios["andrea"].id, texto="¡Qué bien, Diana! Ese espacio para ti vale oro."))
+    db.add(Comentario(publicacion_id=p2.id, autor_id=usuarios["cristina"].id, texto="Felicidades, ¿me pasas el enlace? Me interesa."))
+    db.add(Comentario(publicacion_id=p2.id, autor_id=usuarios["jessica"].id, texto="¡Vamos, Lucero! Cuéntanos cómo te va."))
+
+    for autora, publicacion in [("lucero", p1), ("andrea", p1), ("jessica", p1), ("diana", p2), ("cristina", p2), ("litzy", p2), ("andrea", p3), ("juliana", p3)]:
+        db.add(Like(usuario_id=usuarios[autora].id, publicacion_id=publicacion.id))
+
+
+def _sembrar_chats_si_falta(db: Session, usuarios: dict) -> None:
+    if db.query(Chat).first() is not None:
+        print("[seed] Chats ya sembrados, omito.")
+        return
+    print("[seed] Sembrando chats...")
+    chats_data = [
+        {"otro": "jessica", "tipo": TipoChat.amiga, "texto": "Espero que estés bien", "no_leidos": 1},
+        {"otro": "diana", "tipo": TipoChat.amiga, "texto": "Nos vemos en la reunión", "no_leidos": 0},
+        {"otro": "lucero", "tipo": TipoChat.amiga, "texto": "Tu historia me inspiró", "no_leidos": 0},
+        {"otro": "andrea", "tipo": TipoChat.mentora, "texto": "¿Ya hiciste tu reto de hoy?", "no_leidos": 2},
+        {"grupo": "Mamás emprendedoras", "tipo": TipoChat.grupo, "texto": "Andrea: ¿Quién va al encuentro del sábado?", "no_leidos": 3},
+        {"otro": "cristina", "tipo": TipoChat.amiga, "texto": "¡Hola!", "no_leidos": 0},
+        {"otro": "juliana", "tipo": TipoChat.amiga, "texto": "¡Me encanta!", "no_leidos": 0},
+    ]
+    for i, c in enumerate(chats_data):
+        if "grupo" in c:
+            chat = Chat(tipo=c["tipo"], otro_nombre=c["grupo"], otro_iniciales="ME", otro_tono=Tono.salvia)
+        else:
+            otro = usuarios[c["otro"]]
+            chat = Chat(tipo=c["tipo"], otro_nombre=otro.nombre, otro_iniciales="".join(p[0].upper() for p in otro.nombre.split()[:2]), otro_tono=otro.tono)
+        db.add(chat)
+        db.flush()
+        db.add(ChatParticipante(chat_id=chat.id, usuario_id=usuarios["litzy"].id, no_leidos=c["no_leidos"]))
+        db.add(Mensaje(chat_id=chat.id, texto=c["texto"], creado_en=datetime.now(timezone.utc) - timedelta(minutes=(i + 1) * 5)))
 
 
 if __name__ == "__main__":
