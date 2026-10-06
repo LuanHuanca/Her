@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react'
+import { useAlternarInscripcion, useEventos } from '../api/eventos'
 import BotonIcono from '../components/BotonIcono'
 import Cabecera from '../components/Cabecera'
 import Icono from '../components/Icono'
-import { EVENTOS } from '../data/mock'
 import {
   INICIALES_SEMANA,
   celdasDelMes,
@@ -11,11 +11,9 @@ import {
   fechaLarga,
   inicioDelDia,
   mesCorto,
-  sumarDias,
   tituloMes,
 } from '../lib/fechas'
 import { cx, plural } from '../lib/texto'
-import { useHerStore } from '../store/useHerStore'
 import ui from '../styles/ui.module.css'
 import type { Modalidad } from '../types'
 import styles from './Eventos.module.css'
@@ -28,21 +26,23 @@ const FILTROS: { id: Filtro; etiqueta: string }[] = [
   { id: 'presencial', etiqueta: 'Presenciales' },
 ]
 
+const aFecha = (iso: string) => new Date(`${iso}T00:00:00`)
+
 export default function Eventos() {
-  const inscritos = useHerStore((s) => s.eventosInscritos)
-  const alternarEvento = useHerStore((s) => s.alternarEvento)
+  const { data } = useEventos()
+  const alternarInscripcion = useAlternarInscripcion()
 
   const hoy = useMemo(() => inicioDelDia(new Date()), [])
   const [mesVisible, setMesVisible] = useState({ anio: hoy.getFullYear(), mes: hoy.getMonth() })
   const [filtro, setFiltro] = useState<Filtro>('todos')
   const [diaSeleccionado, setDiaSeleccionado] = useState<string | null>(null)
 
-  const eventos = useMemo(() => EVENTOS.map((e) => ({ ...e, fecha: sumarDias(hoy, e.offsetDias) })), [hoy])
-  const diasConEvento = new Set(eventos.map((e) => claveDia(e.fecha)))
+  const eventos = useMemo(() => (data ?? []).map((e) => ({ ...e, fechaObj: aFecha(e.fecha) })), [data])
+  const diasConEvento = new Set(eventos.map((e) => claveDia(e.fechaObj)))
   const celdas = celdasDelMes(mesVisible.anio, mesVisible.mes)
 
   const visibles = eventos.filter(
-    (e) => (filtro === 'todos' || e.modalidad === filtro) && (!diaSeleccionado || claveDia(e.fecha) === diaSeleccionado),
+    (e) => (filtro === 'todos' || e.modalidad === filtro) && (!diaSeleccionado || claveDia(e.fechaObj) === diaSeleccionado),
   )
 
   function cambiarMes(delta: number) {
@@ -139,43 +139,40 @@ export default function Eventos() {
           </div>
 
           {visibles.length === 0 ? (
-            <p className={ui.vacio}>No hay eventos con estos filtros.</p>
+            <p className={ui.vacio}>{data === undefined ? 'Cargando…' : 'No hay eventos con estos filtros.'}</p>
           ) : (
-            <ul className={ui.lista}>
-              {visibles.map((e) => {
-                const inscrita = inscritos.includes(e.id)
-                return (
-                  <li key={e.id} className={ui.tarjeta}>
-                    <div className={ui.fila}>
-                      <span className={ui.fechaCaja}>
-                        <span className={ui.fechaCajaDia}>{e.fecha.getDate()}</span>
-                        <span className={ui.fechaCajaMes}>{mesCorto(e.fecha)}</span>
+            <ul className={ui.listaTarjetas}>
+              {visibles.map((e) => (
+                <li key={e.id} className={ui.tarjeta}>
+                  <div className={ui.fila}>
+                    <span className={ui.fechaCaja}>
+                      <span className={ui.fechaCajaDia}>{e.fechaObj.getDate()}</span>
+                      <span className={ui.fechaCajaMes}>{mesCorto(e.fechaObj)}</span>
+                    </span>
+                    <div className={ui.crece}>
+                      <span className={ui.titulo}>{e.titulo}</span>
+                      <span className={styles.detalle}>
+                        <Icono nombre="reloj" tamano={15} />
+                        {diaSemanaCorto(e.fechaObj)} · {e.hora} · {e.duracionMin} min
                       </span>
-                      <div className={ui.crece}>
-                        <span className={ui.titulo}>{e.titulo}</span>
-                        <span className={styles.detalle}>
-                          <Icono nombre="reloj" tamano={15} />
-                          {diaSemanaCorto(e.fecha)} · {e.hora} · {e.duracionMin} min
-                        </span>
-                        <span className={styles.detalle}>
-                          <Icono nombre={e.modalidad === 'virtual' ? 'video' : 'ubicacion'} tamano={15} />
-                          {e.modalidad === 'virtual' ? `Virtual · ${e.lugar}` : `Presencial · ${e.lugar}`}
-                        </span>
-                      </div>
+                      <span className={styles.detalle}>
+                        <Icono nombre={e.modalidad === 'virtual' ? 'video' : 'ubicacion'} tamano={15} />
+                        {e.modalidad === 'virtual' ? `Virtual · ${e.lugar}` : `Presencial · ${e.lugar}`}
+                      </span>
                     </div>
-                    <p className={ui.lead}>{e.descripcion}</p>
-                    <button
-                      type="button"
-                      className={cx(ui.boton, ui.compacto, inscrita ? ui.suave : ui.primario)}
-                      aria-pressed={inscrita}
-                      onClick={() => alternarEvento(e.id)}
-                    >
-                      {inscrita && <Icono nombre="check" tamano={16} strokeWidth={2.5} />}
-                      {inscrita ? 'Inscrita' : 'Inscribirme'}
-                    </button>
-                  </li>
-                )
-              })}
+                  </div>
+                  <p className={ui.lead}>{e.descripcion}</p>
+                  <button
+                    type="button"
+                    className={cx(ui.boton, ui.compacto, e.inscrita ? ui.suave : ui.primario)}
+                    aria-pressed={e.inscrita}
+                    onClick={() => alternarInscripcion.mutate(e.id)}
+                  >
+                    {e.inscrita && <Icono nombre="check" tamano={16} strokeWidth={2.5} />}
+                    {e.inscrita ? 'Inscrita' : 'Inscribirme'}
+                  </button>
+                </li>
+              ))}
             </ul>
           )}
         </section>

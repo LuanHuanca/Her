@@ -1,0 +1,64 @@
+# Blueprint de Render para desplegar Her Platform (backend + frontend + base de datos)
+# de una sola vez. En el dashboard de Render: New > Blueprint > elegir este repo y esta rama.
+#
+# La base de datos usa el plan "free" (Postgres gratis de Render): expira a los 30 días y,
+# tras un período de gracia, hay que pasar al plan pago (~$6/mes, "Basic-256mb") o migrar
+# los datos a otro proveedor antes de que se borre.
+
+databases:
+  - name: her-db
+    databaseName: her_db
+    user: her
+    plan: free
+    region: oregon
+
+services:
+  # ── Backend (FastAPI, con Docker) ──────────────────────────────────────────
+  - type: web
+    name: her-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    dockerCommand: sh ./entrypoint.sh
+    plan: free
+    region: oregon
+    branch: Dev
+    healthCheckPath: /
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: her-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "60"
+      - key: RELOAD
+        value: "false"
+      - key: CORS_ORIGINS
+        fromService:
+          type: web
+          name: her-frontend
+          property: host
+
+  # ── Frontend (React + Vite, sitio estático) ────────────────────────────────
+  - type: web
+    name: her-frontend
+    runtime: static
+    # Ni `npm install -g` ni `corepack enable` funcionan en el build de Render (EROFS:
+    # el filesystem donde vive el binario global es de solo lectura) — pero la imagen
+    # ya trae pnpm preinstalado en /usr/bin/pnpm, así que no hace falta instalarlo.
+    buildCommand: cd frontend && pnpm install && pnpm build
+    staticPublishPath: ./frontend/dist
+    branch: Dev
+    routes:
+      - source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: her-backend
+          property: host

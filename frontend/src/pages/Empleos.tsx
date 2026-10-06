@@ -1,10 +1,10 @@
 import { useState } from 'react'
+import { useEmpleos } from '../api/empleos'
+import { usePerfil } from '../api/perfil'
 import Buscador from '../components/Buscador'
 import Icono from '../components/Icono'
 import TarjetaEmpleo from '../components/TarjetaEmpleo'
-import { EMPLEOS } from '../data/mock'
 import { normalizar, plural } from '../lib/texto'
-import { useHerStore } from '../store/useHerStore'
 import ui from '../styles/ui.module.css'
 import type { Empleo } from '../types'
 import styles from './Empleos.module.css'
@@ -20,8 +20,8 @@ const FILTROS: { id: Filtro; etiqueta: string }[] = [
 ]
 
 export default function Empleos() {
-  const perfil = useHerStore((s) => s.perfil)
-  const guardados = useHerStore((s) => s.empleosGuardados)
+  const { data: perfil } = usePerfil()
+  const { data: empleos } = useEmpleos()
   const [filtro, setFiltro] = useState<Filtro>('todos')
   const [busqueda, setBusqueda] = useState('')
 
@@ -30,16 +30,17 @@ export default function Empleos() {
     medio: (e) => e.jornada === 'Medio tiempo',
     remoto: (e) => e.modalidad === 'Remoto',
     completo: (e) => e.jornada === 'Tiempo completo',
-    guardados: (e) => guardados.includes(e.id),
+    guardados: (e) => e.guardado,
   }
 
+  const lista = empleos ?? []
   const consulta = normalizar(busqueda)
-  const visibles = EMPLEOS.filter(
+  const visibles = lista.filter(
     (e) =>
       cumpleFiltro[filtro](e) &&
       (!consulta || normalizar(`${e.puesto} ${e.empresa.nombre} ${e.ciudad}`).includes(consulta)),
   )
-  const enTuCiudad = EMPLEOS.filter((e) => e.ciudad === perfil.ciudad || e.modalidad === 'Remoto').length
+  const enTuCiudad = perfil ? lista.filter((e) => e.ciudad === perfil.ciudad || e.modalidad === 'Remoto').length : 0
 
   return (
     <div className={ui.pantalla}>
@@ -66,7 +67,7 @@ export default function Empleos() {
           ))}
         </div>
 
-        {perfil.buscaEmpleo === 'si' && filtro === 'todos' && !consulta && (
+        {perfil?.buscaEmpleo === 'si' && filtro === 'todos' && !consulta && enTuCiudad > 0 && (
           <div className={styles.banner}>
             <span className={styles.bannerIcono}>
               <Icono nombre="rayo" tamano={20} />
@@ -79,10 +80,14 @@ export default function Empleos() {
 
         {visibles.length === 0 ? (
           <p className={ui.vacio}>
-            {filtro === 'guardados' ? 'Aún no guardaste ofertas. Toca el corazón para guardarlas.' : 'No hay ofertas con estos filtros.'}
+            {empleos === undefined
+              ? 'Cargando…'
+              : filtro === 'guardados'
+                ? 'Aún no guardaste ofertas. Toca el corazón para guardarlas.'
+                : 'No hay ofertas con estos filtros.'}
           </p>
         ) : (
-          <div className={ui.lista}>
+          <div className={ui.listaTarjetas}>
             {visibles.map((e) => (
               <TarjetaEmpleo key={e.id} empleo={e} />
             ))}

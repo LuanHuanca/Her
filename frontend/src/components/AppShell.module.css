@@ -1,10 +1,9 @@
-/* Columna tipo móvil: ocupa toda la pantalla en celulares y se centra en escritorio. */
+/* Celular: columna a todo el ancho con navegación inferior (comportamiento original). */
 .marco {
   position: relative;
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 440px;
   min-height: 100dvh;
   margin: 0 auto;
   background: var(--her-fondo);
@@ -15,10 +14,29 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  width: 100%;
 }
 
-@media (min-width: 520px) {
+/* Tablet y escritorio: barra de navegación lateral + columna de contenido centrada
+   (igual que Instagram/Twitter en desktop), en vez de una columna de teléfono estirada. */
+@media (min-width: 700px) {
   .marco {
-    box-shadow: 0 0 0 1px var(--her-linea), 0 24px 60px rgba(120, 40, 60, 0.12);
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: center;
+    background: var(--her-blush-suave);
+  }
+
+  .contenido {
+    max-width: 640px;
+    background: var(--her-fondo);
+    box-shadow: 0 0 0 1px var(--her-linea);
+  }
+}
+
+@media (min-width: 1024px) {
+  .contenido {
+    max-width: 880px;
   }
 }

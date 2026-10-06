@@ -61,6 +61,26 @@
   gap: 12px;
 }
 
+/* Como .lista, pero para colecciones de tarjetas independientes (empleos, eventos):
+   en tablet/escritorio se acomodan en grilla en vez de una sola columna larga.
+   El feed de comunidad y las listas ordenadas (módulos del reto) se quedan en columna. */
+.listaTarjetas {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@media (min-width: 700px) {
+  .listaTarjetas {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    align-items: start;
+  }
+}
+
 /* ── Tipografía ─────────────────────────────────────────────────────── */
 .tituloDisplay {
   font-family: var(--font-display);

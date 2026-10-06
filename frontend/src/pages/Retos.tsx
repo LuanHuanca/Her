@@ -1,21 +1,23 @@
 import { Link } from 'react-router-dom'
+import { useRuta } from '../api/retos'
 import BarraProgreso from '../components/BarraProgreso'
 import Icono from '../components/Icono'
-import { MODULOS } from '../data/mock'
 import { cx } from '../lib/texto'
-import { useHerStore } from '../store/useHerStore'
 import ui from '../styles/ui.module.css'
 import styles from './Retos.module.css'
 
 const numero = (n: number) => n.toString().padStart(2, '0')
 
 export default function Retos() {
-  const reto = useHerStore((s) => s.reto)
-  const indiceActual = Math.max(
-    MODULOS.findIndex((m) => m.id === reto.moduloId),
-    0,
-  )
-  const diasHechos = reto.completadoHoy ? reto.dia : reto.dia - 1
+  const { data: ruta } = useRuta()
+
+  if (!ruta) {
+    return (
+      <div className={ui.pantalla}>
+        <p className={ui.vacio}>Cargando…</p>
+      </div>
+    )
+  }
 
   return (
     <div className={ui.pantalla}>
@@ -24,7 +26,7 @@ export default function Retos() {
           <h1 className={ui.tituloDisplay}>Tu ruta</h1>
           <span className={styles.racha}>
             <Icono nombre="retos" tamano={16} strokeWidth={2} />
-            {reto.racha} días
+            {ruta.racha} días
           </span>
         </div>
         <p className={ui.lead}>Módulos de 21 días. Un paso pequeño cada día.</p>
@@ -32,8 +34,8 @@ export default function Retos() {
 
       <main className={ui.cuerpo}>
         <ol className={ui.lista}>
-          {MODULOS.map((modulo, i) => {
-            if (i < indiceActual) {
+          {ruta.modulos.map((modulo) => {
+            if (modulo.estado === 'completado') {
               return (
                 <li key={modulo.id} className={cx(ui.tarjeta, ui.fila)}>
                   <span className={cx(styles.numero, styles.numeroHecho)}>
@@ -47,7 +49,8 @@ export default function Retos() {
               )
             }
 
-            if (i === indiceActual) {
+            if (modulo.estado === 'actual') {
+              const diasHechos = modulo.diasHechos ?? 0
               return (
                 <li key={modulo.id}>
                   <Link to="/retos/hoy" className={cx(ui.tarjeta, ui.tarjetaBlush, styles.actual)}>
@@ -62,7 +65,7 @@ export default function Retos() {
                     <div className={styles.pieActual}>
                       <span>{diasHechos} de 21 días</span>
                       <span className={styles.continuar}>
-                        {reto.completadoHoy ? 'Ver tarea de hoy' : 'Continuar'}
+                        Continuar
                         <Icono nombre="adelante" tamano={16} strokeWidth={2.5} />
                       </span>
                     </div>

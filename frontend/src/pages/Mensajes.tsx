@@ -1,8 +1,8 @@
 import { useState } from 'react'
+import { useChats } from '../api/mensajes'
 import Avatar from '../components/Avatar'
 import Buscador from '../components/Buscador'
 import Cabecera from '../components/Cabecera'
-import { CHATS } from '../data/mock'
 import { cx, normalizar } from '../lib/texto'
 import ui from '../styles/ui.module.css'
 import type { TipoChat } from '../types'
@@ -19,11 +19,12 @@ const FILTROS: { id: Filtro; etiqueta: string }[] = [
 const ETIQUETA_TIPO: Partial<Record<TipoChat, string>> = { mentora: 'Mentora', grupo: 'Grupo' }
 
 export default function Mensajes() {
+  const { data } = useChats()
   const [filtro, setFiltro] = useState<Filtro>('todas')
   const [busqueda, setBusqueda] = useState('')
 
   const consulta = normalizar(busqueda)
-  const chats = CHATS.filter(
+  const chats = (data ?? []).filter(
     (c) => (filtro === 'todas' || c.tipo === filtro) && (!consulta || normalizar(c.persona.nombre).includes(consulta)),
   )
 
@@ -50,7 +51,7 @@ export default function Mensajes() {
         </div>
 
         {chats.length === 0 ? (
-          <p className={ui.vacio}>No hay conversaciones con ese filtro.</p>
+          <p className={ui.vacio}>{data === undefined ? 'Cargando…' : 'No hay conversaciones con ese filtro.'}</p>
         ) : (
           <ul className={styles.lista}>
             {chats.map((c) => (

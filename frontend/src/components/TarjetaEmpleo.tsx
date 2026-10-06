@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
+import { useAlternarGuardado } from '../api/empleos'
 import { cx } from '../lib/texto'
-import { useHerStore } from '../store/useHerStore'
 import ui from '../styles/ui.module.css'
 import type { Empleo } from '../types'
 import Avatar from './Avatar'
@@ -8,9 +8,7 @@ import Icono from './Icono'
 import styles from './TarjetaEmpleo.module.css'
 
 export default function TarjetaEmpleo({ empleo }: { empleo: Empleo }) {
-  const guardado = useHerStore((s) => s.empleosGuardados.includes(empleo.id))
-  const postulada = useHerStore((s) => s.postulaciones.includes(empleo.id))
-  const alternarGuardado = useHerStore((s) => s.alternarGuardado)
+  const alternarGuardado = useAlternarGuardado()
 
   return (
     <article className={ui.tarjeta}>
@@ -26,18 +24,18 @@ export default function TarjetaEmpleo({ empleo }: { empleo: Empleo }) {
         </div>
         <button
           type="button"
-          className={cx(ui.botonIcono, ui.sobreEnlace, guardado && styles.guardado)}
-          aria-pressed={guardado}
-          aria-label={guardado ? `Quitar ${empleo.puesto} de guardados` : `Guardar ${empleo.puesto}`}
-          onClick={() => alternarGuardado(empleo.id)}
+          className={cx(ui.botonIcono, ui.sobreEnlace, empleo.guardado && styles.guardado)}
+          aria-pressed={empleo.guardado}
+          aria-label={empleo.guardado ? `Quitar ${empleo.puesto} de guardados` : `Guardar ${empleo.puesto}`}
+          onClick={() => alternarGuardado.mutate(empleo.id)}
         >
-          <Icono nombre="corazon" tamano={20} relleno={guardado} />
+          <Icono nombre="corazon" tamano={20} relleno={empleo.guardado} />
         </button>
       </div>
       <div className={ui.chips}>
         <span className={cx(ui.chip, ui.chipNeutro)}>{empleo.jornada}</span>
         <span className={cx(ui.chip, ui.chipNeutro)}>{empleo.modalidad}</span>
-        {postulada && <span className={cx(ui.chip, ui.chipExito)}>Postulaste</span>}
+        {empleo.postulada && <span className={cx(ui.chip, ui.chipExito)}>Postulaste</span>}
       </div>
       <p className={styles.coincide}>
         <Icono nombre="rayo" tamano={16} />

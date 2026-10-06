@@ -45,17 +45,16 @@ export default function Bienvenida() {
           <Boton to="/registro" bloque>
             Regístrate aquí
           </Boton>
-          {/* TODO: conectar con OAuth de Google cuando exista el router de auth. */}
-          <Boton to="/inicio" variante="secundario" bloque>
+          <Boton variante="secundario" bloque disabled title="Próximamente">
             <span className={styles.google} aria-hidden="true">
               G
             </span>
-            Continuar con Google
+            Continuar con Google (próximamente)
           </Boton>
         </div>
 
         <p className={styles.yaTengo}>
-          ¿Ya tienes cuenta? <Link to="/inicio">Inicia sesión</Link>
+          ¿Ya tienes cuenta? <Link to="/login">Inicia sesión</Link>
         </p>
       </section>
     </div>

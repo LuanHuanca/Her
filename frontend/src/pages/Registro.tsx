@@ -1,9 +1,12 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useRegistro } from '../api/auth'
+import { useActualizarPerfil, usePerfil } from '../api/perfil'
 import Boton from '../components/Boton'
-import { CabeceraPasos } from '../components/Cabecera'
+import Cabecera, { CabeceraPasos } from '../components/Cabecera'
 import { CIUDADES } from '../data/mock'
-import { useHerStore } from '../store/useHerStore'
+import { ApiError } from '../lib/api'
+import { useAuthStore } from '../store/useAuthStore'
 import ui from '../styles/ui.module.css'
 import type { BuscaEmpleo, Perfil, PreferenciaEventos } from '../types'
 
@@ -21,33 +24,63 @@ const OPCIONES_EVENTOS: { id: PreferenciaEventos; etiqueta: string }[] = [
 
 const OPCIONES_HIJOS = [1, 2, 3, 4]
 
+const PERFIL_INICIAL: Perfil = {
+  nombre: '',
+  fechaNacimiento: '',
+  ciudad: CIUDADES[0],
+  ocupacion: '',
+  hijos: 1,
+  buscaEmpleo: 'nose',
+  eventos: 'ambos',
+}
+
 export default function Registro() {
   const navigate = useNavigate()
-  const perfilGuardado = useHerStore((s) => s.perfil)
-  const guardarPerfil = useHerStore((s) => s.guardarPerfil)
-  const [perfil, setPerfil] = useState<Perfil>(perfilGuardado)
+  const modoEdicion = !!useAuthStore((s) => s.token)
+  const registro = useRegistro()
+  const { data: perfilGuardado } = usePerfil()
+  const actualizarPerfil = useActualizarPerfil()
+  const [perfil, setPerfil] = useState<Perfil>(PERFIL_INICIAL)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmar, setConfirmar] = useState('')
+
+  useEffect(() => {
+    if (modoEdicion && perfilGuardado) setPerfil(perfilGuardado)
+  }, [modoEdicion, perfilGuardado])
 
   const actualizar = <K extends keyof Perfil>(campo: K, valor: Perfil[K]) =>
     setPerfil((actual) => ({ ...actual, [campo]: valor }))
 
-  const esValido = perfil.nombre.trim().length > 1
+  const contraseñasCoinciden = password.length > 0 && password === confirmar
+  const esValido =
+    perfil.nombre.trim().length > 1 &&
+    perfil.fechaNacimiento.length > 0 &&
+    (modoEdicion || (/\S+@\S+\.\S+/.test(email) && password.length >= 8 && contraseñasCoinciden))
   const hoyIso = new Date().toISOString().slice(0, 10)
+  const guardando = registro.isPending || actualizarPerfil.isPending
 
   function enviar(evento: FormEvent) {
     evento.preventDefault()
-    if (!esValido) return
-    // TODO: enviar a POST /users cuando exista el router de usuarios.
-    guardarPerfil({ ...perfil, nombre: perfil.nombre.trim(), ocupacion: perfil.ocupacion.trim() })
-    navigate('/metas')
+    if (!esValido || guardando) return
+    const perfilLimpio = { ...perfil, nombre: perfil.nombre.trim(), ocupacion: perfil.ocupacion.trim() }
+    if (modoEdicion) {
+      actualizarPerfil.mutate(perfilLimpio, { onSuccess: () => navigate('/perfil') })
+      return
+    }
+    registro.mutate(
+      { ...perfilLimpio, email: email.trim().toLowerCase(), password },
+      { onSuccess: () => navigate('/metas') },
+    )
   }
 
   return (
     <form className={ui.pantalla} onSubmit={enviar} noValidate>
-      <CabeceraPasos paso={1} total={2} atras="/" />
+      {modoEdicion ? <Cabecera titulo="Editar datos" atras="/perfil" /> : <CabeceraPasos paso={1} total={2} atras="/" />}
 
       <main className={ui.cuerpo}>
         <div className={ui.intro}>
-          <h1 className={ui.tituloDisplay}>Cuéntanos sobre ti</h1>
+          <h1 className={ui.tituloDisplay}>{modoEdicion ? 'Tus datos' : 'Cuéntanos sobre ti'}</h1>
           <p className={ui.lead}>Con estas respuestas personalizamos tus retos, eventos y empleos en Her.</p>
         </div>
 
@@ -66,6 +99,65 @@ export default function Registro() {
               required
             />
           </div>
+
+          {!modoEdicion && (
+            <div className={ui.campo}>
+              <label htmlFor="email" className={ui.etiqueta}>
+                Correo electrónico
+              </label>
+              <input
+                id="email"
+                type="email"
+                className={ui.entrada}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="tu@correo.com"
+                autoComplete="email"
+                required
+              />
+            </div>
+          )}
+
+          {!modoEdicion && (
+          <div className={ui.dosColumnas}>
+            <div className={ui.campo}>
+              <label htmlFor="password" className={ui.etiqueta}>
+                Contraseña
+              </label>
+              <input
+                id="password"
+                type="password"
+                className={ui.entrada}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Mínimo 8 caracteres"
+                autoComplete="new-password"
+                minLength={8}
+                required
+              />
+            </div>
+            <div className={ui.campo}>
+              <label htmlFor="confirmar" className={ui.etiqueta}>
+                Confirmar contraseña
+              </label>
+              <input
+                id="confirmar"
+                type="password"
+                className={ui.entrada}
+                value={confirmar}
+                onChange={(e) => setConfirmar(e.target.value)}
+                placeholder="Repite tu contraseña"
+                autoComplete="new-password"
+                required
+              />
+            </div>
+          </div>
+          )}
+          {!modoEdicion && confirmar.length > 0 && !contraseñasCoinciden && (
+            <p className={ui.meta} style={{ color: 'var(--her-rosa-oscuro)' }}>
+              Las contraseñas no coinciden.
+            </p>
+          )}
 
           <div className={ui.dosColumnas}>
             <div className={ui.campo}>
@@ -169,11 +261,20 @@ export default function Registro() {
             ))}
           </div>
         </section>
+
+        {(registro.isError || actualizarPerfil.isError) && (
+          <p role="alert" className={ui.meta} style={{ color: 'var(--her-rosa-oscuro)' }}>
+            {(() => {
+              const error = registro.error ?? actualizarPerfil.error
+              return error instanceof ApiError ? error.message : 'No pudimos guardar tus datos.'
+            })()}
+          </p>
+        )}
       </main>
 
       <footer className={ui.pie}>
-        <Boton type="submit" bloque disabled={!esValido}>
-          Siguiente
+        <Boton type="submit" bloque disabled={!esValido || guardando}>
+          {guardando ? 'Guardando…' : modoEdicion ? 'Guardar cambios' : 'Siguiente'}
         </Boton>
       </footer>
     </form>

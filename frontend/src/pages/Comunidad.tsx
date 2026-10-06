@@ -1,38 +1,50 @@
 import { useMemo, useRef, useState, type FormEvent } from 'react'
+import { useCrearPublicacion, usePublicaciones } from '../api/comunidad'
+import { useChats } from '../api/mensajes'
+import { usePerfil } from '../api/perfil'
 import Avatar from '../components/Avatar'
 import Boton from '../components/Boton'
 import BotonIcono from '../components/BotonIcono'
 import Buscador from '../components/Buscador'
 import Icono from '../components/Icono'
 import TarjetaPublicacion from '../components/TarjetaPublicacion'
-import { CHATS, HISTORIAS, PUBLICACIONES } from '../data/mock'
+import { HISTORIAS } from '../data/mock'
 import { iniciales, normalizar, primerNombre } from '../lib/texto'
-import { useHerStore } from '../store/useHerStore'
 import ui from '../styles/ui.module.css'
 import styles from './Comunidad.module.css'
 
 export default function Comunidad() {
-  const perfil = useHerStore((s) => s.perfil)
-  const publicacionesPropias = useHerStore((s) => s.publicacionesPropias)
-  const publicar = useHerStore((s) => s.publicar)
+  const { data: perfil } = usePerfil()
+  const { data: publicaciones } = usePublicaciones()
+  const { data: chats } = useChats()
+  const crearPublicacion = useCrearPublicacion()
 
   const [busqueda, setBusqueda] = useState('')
   const [borrador, setBorrador] = useState('')
   const campoRef = useRef<HTMLTextAreaElement>(null)
 
-  const publicaciones = useMemo(() => [...publicacionesPropias, ...PUBLICACIONES], [publicacionesPropias])
   const consulta = normalizar(busqueda)
-  const visibles = consulta
-    ? publicaciones.filter((p) => normalizar(`${p.autora.nombre} ${p.texto} ${p.etiqueta}`).includes(consulta))
-    : publicaciones
-  const hayMensajesSinLeer = CHATS.some((c) => c.noLeidos > 0)
+  const visibles = useMemo(() => {
+    const lista = publicaciones ?? []
+    return consulta
+      ? lista.filter((p) => normalizar(`${p.autora.nombre} ${p.texto} ${p.etiqueta}`).includes(consulta))
+      : lista
+  }, [publicaciones, consulta])
+  const hayMensajesSinLeer = (chats ?? []).some((c) => c.noLeidos > 0)
 
   function enviar(evento: FormEvent) {
     evento.preventDefault()
     const texto = borrador.trim()
     if (!texto) return
-    publicar(texto)
-    setBorrador('')
+    crearPublicacion.mutate(texto, { onSuccess: () => setBorrador('') })
+  }
+
+  if (!perfil) {
+    return (
+      <div className={ui.pantalla}>
+        <p className={ui.vacio}>Cargando…</p>
+      </div>
+    )
   }
 
   return (
@@ -85,8 +97,8 @@ export default function Comunidad() {
             />
           </div>
           {borrador.trim() && (
-            <Boton type="submit" compacto className={styles.publicar}>
-              Publicar
+            <Boton type="submit" compacto className={styles.publicar} disabled={crearPublicacion.isPending}>
+              {crearPublicacion.isPending ? 'Publicando…' : 'Publicar'}
             </Boton>
           )}
         </form>
@@ -98,7 +110,9 @@ export default function Comunidad() {
             ))}
           </div>
         ) : (
-          <p className={ui.vacio}>No encontramos publicaciones para “{busqueda}”.</p>
+          <p className={ui.vacio}>
+            {publicaciones === undefined ? 'Cargando publicaciones…' : `No encontramos publicaciones para “${busqueda}”.`}
+          </p>
         )}
       </main>
     </div>

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useAlternarLike } from '../api/comunidad'
 import { cx } from '../lib/texto'
-import { useHerStore } from '../store/useHerStore'
 import ui from '../styles/ui.module.css'
 import type { Publicacion } from '../types'
 import Avatar from './Avatar'
@@ -16,13 +16,8 @@ interface Props {
 }
 
 export default function TarjetaPublicacion({ publicacion: p, enlazarDetalle = true }: Props) {
-  const meGusta = useHerStore((s) => !!s.likes[p.id])
-  const alternarLike = useHerStore((s) => s.alternarLike)
-  const comentariosPropios = useHerStore((s) => s.comentariosPropios[p.id])
+  const alternarLike = useAlternarLike()
   const [copiado, setCopiado] = useState(false)
-
-  const totalComentarios = p.comentarios.length + (comentariosPropios?.length ?? 0)
-  const totalLikes = p.likes + (meGusta ? 1 : 0)
 
   async function compartir() {
     const url = `${window.location.origin}/comunidad/${p.id}`
@@ -42,7 +37,7 @@ export default function TarjetaPublicacion({ publicacion: p, enlazarDetalle = tr
   const contenidoComentarios = (
     <>
       <Icono nombre="mensaje" tamano={20} />
-      {totalComentarios}
+      {p.comentarios.length}
       <span className="sr-only">comentarios</span>
     </>
   )
@@ -65,12 +60,12 @@ export default function TarjetaPublicacion({ publicacion: p, enlazarDetalle = tr
       <div className={styles.acciones}>
         <button
           type="button"
-          className={cx(styles.accion, meGusta && styles.accionActiva)}
-          aria-pressed={meGusta}
-          onClick={() => alternarLike(p.id)}
+          className={cx(styles.accion, p.meGusta && styles.accionActiva)}
+          aria-pressed={p.meGusta}
+          onClick={() => alternarLike.mutate(p.id)}
         >
-          <Icono nombre="corazon" tamano={20} relleno={meGusta} />
-          {totalLikes}
+          <Icono nombre="corazon" tamano={20} relleno={p.meGusta} />
+          {p.likes}
           <span className="sr-only">me gusta</span>
         </button>
 

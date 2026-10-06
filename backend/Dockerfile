@@ -16,9 +16,11 @@ RUN uv pip install --system --no-cache -r pyproject.toml
 # Copiar el resto del código
 # En desarrollo, este COPY se sobreescribe por el bind-mount del compose
 COPY . .
+RUN chmod +x entrypoint.sh
 
 # Exponer el puerto de uvicorn
 EXPOSE 8000
 
-# Comando de inicio (sobreescrito por docker-compose en desarrollo para añadir --reload)
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Migra, siembra datos si hace falta y arranca uvicorn (escucha en $PORT si está definido).
+# docker-compose lo sobreescribe para pasar RELOAD=true en desarrollo.
+CMD ["sh", "./entrypoint.sh"]

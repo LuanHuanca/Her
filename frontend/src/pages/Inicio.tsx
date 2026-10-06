@@ -1,26 +1,33 @@
 import { Link } from 'react-router-dom'
+import { useEventos } from '../api/eventos'
+import { usePerfil } from '../api/perfil'
+import { useRetoHoy } from '../api/retos'
 import Avatar from '../components/Avatar'
 import BarraProgreso from '../components/BarraProgreso'
 import BotonIcono from '../components/BotonIcono'
 import Decoracion from '../components/Decoracion'
 import Icono from '../components/Icono'
-import { EVENTOS, MODULOS, TAREA_DEL_DIA } from '../data/mock'
-import { INICIALES_SEMANA, diaSemanaCorto, diasEntre, fechaLarga, mesCorto, semanaDe, sumarDias } from '../lib/fechas'
+import { INICIALES_SEMANA, diaSemanaCorto, diasEntre, fechaLarga, mesCorto, semanaDe } from '../lib/fechas'
 import { cx, formatoPuntos, iniciales, primerNombre } from '../lib/texto'
-import { useHerStore } from '../store/useHerStore'
 import ui from '../styles/ui.module.css'
 import styles from './Inicio.module.css'
 
 type EstadoDia = 'hecho' | 'pendiente' | 'perdido' | 'futuro'
 
 export default function Inicio() {
-  const perfil = useHerStore((s) => s.perfil)
-  const reto = useHerStore((s) => s.reto)
-  const puntos = useHerStore((s) => s.puntos)
-  const inscritos = useHerStore((s) => s.eventosInscritos)
+  const { data: perfil } = usePerfil()
+  const { data: reto } = useRetoHoy()
+  const { data: eventos } = useEventos()
+
+  if (!perfil || !reto) {
+    return (
+      <div className={ui.pantalla}>
+        <p className={ui.vacio}>Cargando…</p>
+      </div>
+    )
+  }
 
   const hoy = new Date()
-  const modulo = MODULOS.find((m) => m.id === reto.moduloId) ?? MODULOS[0]
   const diasHechos = reto.completadoHoy ? reto.dia : reto.dia - 1
   const rachaAntesDeHoy = reto.completadoHoy ? reto.racha - 1 : reto.racha
 
@@ -33,8 +40,8 @@ export default function Inicio() {
   })
   const hechosEstaSemana = semana.filter((d) => d.estado === 'hecho').length
 
-  const proximoEvento = [...EVENTOS].sort((a, b) => a.offsetDias - b.offsetDias).find((e) => e.offsetDias >= 0)
-  const fechaProximo = proximoEvento ? sumarDias(hoy, proximoEvento.offsetDias) : null
+  const proximoEvento = [...(eventos ?? [])].sort((a, b) => a.fecha.localeCompare(b.fecha))[0]
+  const fechaProximo = proximoEvento ? new Date(`${proximoEvento.fecha}T00:00:00`) : null
 
   return (
     <div className={ui.pantalla}>
@@ -54,7 +61,7 @@ export default function Inicio() {
           <Decoracion tamano={200} anillos={2} color="#E27D93" className={styles.heroDeco} />
           <div className={styles.heroFila}>
             <h2 id="reto-actual" className={styles.heroEyebrow}>
-              Reto actual · {modulo.corto}
+              Reto actual · {reto.moduloCorto}
             </h2>
             <span className={styles.racha}>
               <Icono nombre="retos" tamano={14} strokeWidth={2} />
@@ -100,9 +107,9 @@ export default function Inicio() {
             </span>
             <div className={ui.crece}>
               <span className={ui.eyebrow}>
-                {TAREA_DEL_DIA.minutos} min · +{TAREA_DEL_DIA.puntos} pts
+                {reto.tarea.minutos} min · +{reto.tarea.puntos} pts
               </span>
-              <span className={ui.titulo}>{TAREA_DEL_DIA.titulo}</span>
+              <span className={ui.titulo}>{reto.tarea.titulo}</span>
               <span className={ui.meta}>Audio corto y una reflexión escrita</span>
             </div>
             {reto.completadoHoy ? (
@@ -133,7 +140,7 @@ export default function Inicio() {
                   {proximoEvento.modalidad === 'virtual' ? 'Virtual' : proximoEvento.lugar}
                 </span>
               </div>
-              {inscritos.includes(proximoEvento.id) && <span className={cx(ui.chip, ui.chipExito)}>Inscrita</span>}
+              {proximoEvento.inscrita && <span className={cx(ui.chip, ui.chipExito)}>Inscrita</span>}
             </Link>
           </section>
         )}
@@ -144,7 +151,7 @@ export default function Inicio() {
               <Icono nombre="trofeo" tamano={20} />
             </span>
             <span className={ui.meta}>Recompensas</span>
-            <span className={styles.accesoValor}>{formatoPuntos(puntos)} pts</span>
+            <span className={styles.accesoValor}>{formatoPuntos(reto.puntosTotales)} pts</span>
           </Link>
           <Link to="/comunidad" className={ui.tarjeta}>
             <span className={styles.accesoIcono}>

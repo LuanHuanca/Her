@@ -20,6 +20,16 @@ export interface Perfil {
   eventos: PreferenciaEventos
 }
 
+export type Rol = 'usuaria' | 'admin'
+
+export interface UsuarioAutenticado extends Perfil {
+  id: number
+  email: string
+  tono: Tono
+  rol: Rol
+  activo: boolean
+}
+
 export interface Metas {
   objetivos: string[]
   minutosAlDia: number
@@ -34,9 +44,19 @@ export interface Modulo {
   descripcion: string
 }
 
+export type EstadoModulo = 'completado' | 'actual' | 'bloqueado'
+
+export interface ModuloEnRuta extends Modulo {
+  estado: EstadoModulo
+  diasHechos: number | null
+}
+
+export interface Ruta {
+  racha: number
+  modulos: ModuloEnRuta[]
+}
+
 export interface TareaDelDia {
-  moduloId: string
-  dia: number
   titulo: string
   frase: string
   duracionSeg: number
@@ -46,29 +66,58 @@ export interface TareaDelDia {
   consigna: string
 }
 
+export interface RetoHoy {
+  dia: number
+  racha: number
+  completadoHoy: boolean
+  reflexion: string
+  puntosTotales: number
+  moduloCorto: string
+  tarea: TareaDelDia
+}
+
+export interface Insignia {
+  nombre: string
+  icono: string
+  lograda: boolean
+}
+
+export interface GanadoraSemana {
+  persona: Persona
+  detalle: string
+}
+
+export interface Recompensas {
+  puntos: number
+  racha: number
+  insignias: Insignia[]
+  ganadoraSemana: GanadoraSemana | null
+}
+
 export interface Comentario {
-  id: string
+  id: number
   autora: Persona
   hace: string
   texto: string
 }
 
 export interface Publicacion {
-  id: string
+  id: number
   autora: Persona
   hace: string
   etiqueta: string
   texto: string
   /** Foto adjunta: su descripción es el texto alternativo; la escena elige la ilustración provisional. */
-  foto?: { descripcion: string; escena: 'actividad' | 'estudio' }
+  foto?: { descripcion: string; escena: 'actividad' | 'estudio' } | null
   likes: number
+  meGusta: boolean
   comentarios: Comentario[]
 }
 
 export type TipoChat = 'amiga' | 'mentora' | 'grupo'
 
 export interface Chat {
-  id: string
+  id: number
   persona: Persona
   tipo: TipoChat
   ultimo: string
@@ -79,15 +128,16 @@ export interface Chat {
 export type Modalidad = 'virtual' | 'presencial'
 
 export interface Evento {
-  id: string
+  id: number
   titulo: string
-  /** Días desde hoy; permite que el calendario de ejemplo siempre tenga eventos próximos. */
-  offsetDias: number
+  /** Fecha ISO (AAAA-MM-DD), ya calculada por el backend. */
+  fecha: string
   hora: string
   duracionMin: number
   modalidad: Modalidad
   lugar: string
   descripcion: string
+  inscrita: boolean
 }
 
 export interface Empleo {
@@ -102,4 +152,6 @@ export interface Empleo {
   descripcion: string
   requisitos: string[]
   coincidencias: string[]
+  guardado: boolean
+  postulada: boolean
 }

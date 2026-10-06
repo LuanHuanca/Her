@@ -1,43 +1,42 @@
-import type { ChangeEvent } from 'react'
+import { useState, type ChangeEvent } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { useEmpleo, useEmpleos, usePostular } from '../api/empleos'
+import { usePerfil } from '../api/perfil'
 import Avatar from '../components/Avatar'
 import Boton from '../components/Boton'
 import BotonIcono from '../components/BotonIcono'
 import Cabecera from '../components/Cabecera'
 import Icono from '../components/Icono'
-import { EMPLEOS } from '../data/mock'
 import { cx, iniciales, primerNombre } from '../lib/texto'
-import { useHerStore } from '../store/useHerStore'
 import ui from '../styles/ui.module.css'
 import styles from './Postular.module.css'
 
 export default function Postular() {
   const { id } = useParams()
-  const empleo = EMPLEOS.find((e) => e.id === id)
-  const perfil = useHerStore((s) => s.perfil)
-  const cv = useHerStore((s) => s.cv)
-  const subirCv = useHerStore((s) => s.subirCv)
-  const postulada = useHerStore((s) => (empleo ? s.postulaciones.includes(empleo.id) : false))
-  const postular = useHerStore((s) => s.postular)
+  const { data: empleo, isLoading } = useEmpleo(id)
+  const { data: empleos } = useEmpleos()
+  const { data: perfil } = usePerfil()
+  const postularMutacion = usePostular()
+  const [cv, setCv] = useState<string | null>(null)
 
-  if (!empleo) {
+  if (!empleo || !perfil) {
     return (
       <div className={ui.pantalla}>
         <Cabecera titulo="Postular" atras="/empleos" />
         <main className={ui.cuerpo}>
-          <p className={ui.vacio}>Esta oferta ya no está disponible.</p>
+          <p className={ui.vacio}>{isLoading ? 'Cargando…' : 'Esta oferta ya no está disponible.'}</p>
         </main>
       </div>
     )
   }
 
   function alSeleccionarArchivo(evento: ChangeEvent<HTMLInputElement>) {
+    // El backend por ahora solo guarda el nombre del archivo; no hay subida real de CV.
     const archivo = evento.target.files?.[0]
-    // TODO: subir el archivo al backend cuando exista el endpoint; por ahora solo guardamos el nombre.
-    if (archivo) subirCv(archivo.name)
+    if (archivo) setCv(archivo.name)
   }
 
-  const sugerencias = EMPLEOS.filter((e) => e.id !== empleo.id).slice(0, 2)
+  const sugerencias = (empleos ?? []).filter((e) => e.id !== empleo.id).slice(0, 2)
 
   return (
     <div className={ui.pantalla}>
@@ -79,7 +78,7 @@ export default function Postular() {
           </div>
         </section>
 
-        {postulada ? (
+        {empleo.postulada ? (
           <div className={ui.aviso} role="status">
             <Icono nombre="check" tamano={24} strokeWidth={2.5} />
             <div className={ui.crece}>
@@ -121,10 +120,14 @@ export default function Postular() {
         </section>
       </main>
 
-      {!postulada && (
+      {!empleo.postulada && (
         <footer className={ui.pie}>
-          <Boton bloque disabled={!cv} onClick={() => postular(empleo.id)}>
-            Enviar postulación
+          <Boton
+            bloque
+            disabled={!cv || postularMutacion.isPending}
+            onClick={() => cv && postularMutacion.mutate({ empleoId: empleo.id, cvNombreArchivo: cv })}
+          >
+            {postularMutacion.isPending ? 'Enviando…' : 'Enviar postulación'}
           </Boton>
           {!cv && <p className={cx(ui.meta, ui.centrado)}>Carga tu CV para postular.</p>}
         </footer>
